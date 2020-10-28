@@ -1,0 +1,193 @@
+---
+output: 
+  formr::markdown_custom_options:
+    self_contained: false
+---
+
+```{r}
+library(tidyverse)
+load(file="~/research/R/paternal age intelligence/start.clean/mtfs_wide.rdata")
+```
+
+
+# HEIGHT Twins
+
+```{r}
+mtfs <- mtfs %>% 
+	mutate(height_Twin1 = if_else(height_Twin1 < 130, NA_real_, height_Twin1),
+				 height_Twin2 = if_else(height_Twin2 < 130, NA_real_, height_Twin2))
+min(mtfs$height_Twin1,na.rm=T)
+min(mtfs$height_Twin2,na.rm=T)
+cors <- mtfs %>% group_by(zygosity) %>%
+  do(broom::tidy(cor.test(.$height_Twin1, .$height_Twin2)))
+slopes <- mtfs %>% group_by(zygosity) %>%
+  do(broom::tidy(lm(.$height_Twin2 ~ .$height_Twin1), conf.int = TRUE)[2,])
+
+ggplot(mtfs, aes(height_Twin1, height_Twin2, color = zygosity)) +
+  facet_wrap(~ zygosity) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(guide = F)+
+  geom_text(aes(label = sprintf("r=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), 
+  					x = 180, y = 140, data = cors) +
+  geom_text(aes(label = sprintf("b=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), 
+  					x = 180, y = 130, data = slopes) +
+  theme_bw()
+```
+
+# IQ Twins
+
+```{r}
+cors <- mtfs %>% group_by(zygosity) %>%
+  do(broom::tidy(cor.test(.$ful_iq_Twin1, .$ful_iq_Twin2)))
+slopes <- mtfs %>% group_by(zygosity) %>%
+  do(broom::tidy(lm(.$ful_iq_Twin2 ~ .$ful_iq_Twin1), conf.int = TRUE)[2,])
+
+ggplot(mtfs, aes(ful_iq_Twin1, ful_iq_Twin2, color = zygosity)) +
+  facet_wrap(~ zygosity) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(guide = F)+
+  geom_text(aes(label = sprintf("r=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), 
+  					x = 120, y = 70, data = cors) +
+  geom_text(aes(label = sprintf("b=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), 
+  					x = 120, y = 66, data = slopes) +
+  theme_bw()
+```
+
+# IQ Twins
+
+```{r}
+mtfs <- mtfs %>% 
+	mutate(headcirc_Twin1 = if_else(headcirc_Twin1 < 450, NA_real_, headcirc_Twin1),
+				 headcirc_Twin2 = if_else(headcirc_Twin2 < 450, NA_real_, headcirc_Twin2))
+
+summary(lm(headcirc_Twin2 ~ zygosity*headcirc_Twin1, mtfs))
+summary(lm(height_Twin2 ~ zygosity*height_Twin1, mtfs))
+summary(brm(bf(height_Twin2 ~ zygosity*height_Twin1,
+							 sigma ~ zygosity), mtfs,
+                 cores = 4, iter = 2000, 
+                 backend = "cmdstanr"))
+cors <- mtfs %>% group_by(zygosity) %>%
+  do(broom::tidy(cor.test(.$headcirc_Twin1, .$headcirc_Twin2)))
+slopes <- mtfs %>% group_by(zygosity) %>%
+  do(broom::tidy(lm(.$headcirc_Twin2 ~ .$headcirc_Twin1), conf.int = TRUE)[2,])
+
+ggplot(mtfs, aes(headcirc_Twin1, headcirc_Twin2, color = zygosity)) +
+  facet_wrap(~ zygosity) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(guide = F)+
+  geom_text(aes(label = sprintf("r=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), 
+  					x = 575, y = 510, data = cors) +
+  geom_text(aes(label = sprintf("b=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), 
+  					x = 575, y = 500, data = slopes) +
+  theme_bw()
+```
+
+# IQ FATHER TWIN
+```{r}
+corx = cor.test(ful_iq_Father, ful_iq_Twin1)
+qplot(data=mtfs, ful_iq_Father, ful_iq_Twin1, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("IQ Vater") + ylab("IQ Zwilling 1") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2))) + coord_equal(xlim = c(70,150),  ylim= c(70,150))
+```
+
+# FATHER IQ EDU
+```{r}
+corx = cor.test(ful_iq_Father, educatio_Father)
+qplot(data=mtfs, ful_iq_Father, educatio_Father, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("IQ Vater") + ylab("Jahre Bildung Vater") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2))) + coord_equal()
+```
+
+# MOTHER IQ EDU
+```{r}
+corx = cor.test(ful_iq_Mother, educatio_Mother)
+qplot(data=mtfs, ful_iq_Mother, educatio_Mother, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("IQ Vater") + ylab("Jahre Bildung Vater") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2))) + coord_equal()
+```
+
+# TWINS CONSTRAINT
+```{r}
+corx = cor.test(cn_Twin1, cn_Twin2)
+qplot(data=mtfs, cn_Twin1, cn_Twin2, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Beherrschung Zwilling 1") + ylab("Beherrschung Zwilling 1") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2))) + coord_equal(xlim = c(80,200), ylim = c(80,200))
+```
+
+
+# MZ TWINS CONSTRAINT
+```{r}
+corx = cor.test(mtfs[ which(mtfs$zygosity=='MZ'), ]$cn_Twin1, mtfs[ which(mtfs$zygosity=='MZ'), ]$cn_Twin2)
+qplot(data=mtfs[ which(mtfs$zygosity=='MZ'), ], cn_Twin1, cn_Twin2, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Beherrschung eineiiger Zwilling 1") + ylab("Beherrschung eineiiger Zwilling 1") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2)))+ coord_equal(xlim = c(80,200), ylim = c(80,200))
+```
+
+# DZ TWINS CONSTRAINT
+```{r}
+corx = cor.test(mtfs[ which(mtfs$zygosity=='DZ'), ]$cn_Twin1, mtfs[ which(mtfs$zygosity=='DZ'), ]$cn_Twin2)
+qplot(data=mtfs[ which(mtfs$zygosity=='DZ'), ], cn_Twin1, cn_Twin2, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Beherrschung zweieiiger Zwilling 1") + ylab("Beherrschung zweieiiger Zwilling 1") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2)))+ coord_equal(xlim = c(80,200), ylim = c(80,200))
+```
+
+
+# TWIN IQ HEAD CIRCUMFERENCE
+```{r}
+corx = cor.test(ful_iq_Twin1, headcirc_Twin1)
+qplot(data=mtfs, ful_iq_Twin1, headcirc_Twin1, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("IQ Zwilling 1") + ylab("Kopfumfang Zwilling 1") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2))) + ylim(470,620) + coord_equal()
+```
+
+# MZ TWIN HEAD CIRCUMFERENCE
+```{r}
+corx = cor.test(mtfs[ which(mtfs$zygosity=='MZ'), ]$headcirc_Twin1, mtfs[ which(mtfs$zygosity=='MZ'), ]$headcirc_Twin2)
+qplot(data=mtfs[ which(mtfs$zygosity=='MZ'), ], headcirc_Twin1, headcirc_Twin2, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Kopfumfang eineiiger Zwilling 1") + ylab("Kopfumfang eineiiger Zwilling 2") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,3))) + coord_equal(xlim = c(500,620), ylim = c(500,620))
+```
+
+# DZ TWIN HEAD CIRCUMFERENCE
+```{r}
+corx = cor.test(mtfs[ which(mtfs$zygosity=='DZ'), ]$headcirc_Twin1, mtfs[ which(mtfs$zygosity=='DZ'), ]$headcirc_Twin2)
+qplot(data=mtfs[ which(mtfs$zygosity=='DZ'), ], headcirc_Twin1, headcirc_Twin2, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Kopfumfang zweieiiger Zwilling 1") + ylab("Kopfumfang zweieiiger Zwilling 2") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,3))) + coord_equal(xlim = c(500,620), ylim = c(500,620))
+```
+
+
+# PATERNAL AGE TWIN IQ
+```{r}
+corx = cor.test(paternalage, ful_iq_Twin2)
+qplot(data=mtfs, paternalage, ful_iq_Twin2, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Alter des Vaters bei der Geburt") + ylab("IQ Zwilling 2") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,3))) + coord_equal()
+```
+
+# IQ PARENTS
+```{r}
+corx = cor.test(ful_iq_Mother, ful_iq_Father)
+qplot(data=mtfs, ful_iq_Mother, ful_iq_Father, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("IQ Mutter") + ylab("IQ Vater")+ ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,2))) + coord_equal(xlim = c(70,150), ylim = c(70,150))
+	```
+
+# PATERNAL AGE ZYGOSITY
+```{r}
+corx = cor.test(paternalage, ifelse(zygosity=="MZ",0,1))
+qplot(data=mtfs, paternalage, ifelse(zygosity=="MZ",0,1), size = I(15), shape = I(1), alpha = I(0.2)) + theme_minimal(base_size=20) + geom_smooth(method = "lm", size = 0.8) + xlab("Alter des Vaters bei der Geburt") + ylab("Zweieiig") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,3))) + scale_y_continuous(breaks=c(0,1), labels = c("Nein","Ja")) + coord_equal()
+```
+
+# PATERNAL AGE SEX
+```{r}
+corx = cor.test(paternalage, ifelse(twinsex=="male",0,1))
+qplot(data=mtfs, paternalage, ifelse(twinsex=="male",0,1), size = I(15), shape = I(1), alpha = I(0.2)) + theme_minimal(base_size=20) + geom_smooth(method = "lm", size = 0.8) + xlab("Alter des Vaters bei der Geburt") + ylab("Geschlecht") + ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,3))) + scale_y_continuous(breaks=c(0,1), labels = c("Männlich","Weiblich")) + coord_equal()
+```
+
+
+# HEADCIRC PARENTS
+```{r}
+corx = cor.test(headcirc_Mother, headcirc_Father)
+qplot(data=mtfs, headcirc_Mother, headcirc_Father, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Kopfumfang Mutter") + ylab("Kopfumfang Vater")+ ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,3))) + xlim(470,640) + coord_equal()
+```
+
+# HEADCIRC WELLBEING FATHER
+```{r}
+corx = cor.test(headcirc_Father,wb_Father)
+qplot(data=mtfs, headcirc_Father, wb_Father, geom = 'jitter',shape = I(1)) + theme_minimal(base_size=20) + geom_smooth(method = "lm") + xlab("Kopfumfang Vater") + ylab("Wohlbefinden Vater")+ ggtitle(paste("Korrelation", round(corx$estimate,2),"aufgeklärte Varianz",round(corx$estimate^2,3))) + coord_equal()
+```
+
+```{r}
+mtfs = mtfs[order(rnorm(nrow(mtfs))), ]
+cint = data.frame(ymin = character(0), ymax = character(0), y = character(0))
+for(i in 1:50) {
+	mtfs_subset = mtfs[1:(i*5),]
+	corx = cor.test(mtfs_subset$headcirc_Father,mtfs_subset$ful_iq_Father)
+	cint = rbind(cint, cbind(corx$conf.int[1], corx$conf.int[2],corx$estimate))
+}
+names(cint) = c("ymin", "ymax", "y")
+qplot(data=cint, 1:50*5, geom = 'ribbon',ymin = ymin, ymax = ymax) + geom_line(aes(y=y),colour = I("gray")) + xlab("Cases") + ylab("Correlation with 95% CI") + coord_equal()
+
+```

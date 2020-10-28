@@ -1,0 +1,328 @@
+# Differences in slopes or residual variance
+
+```{r}
+library(tidyverse)
+n <- 50
+days_per_person <- 300
+n_days <- n*days_per_person
+library(brms)
+set.seed(20191005)
+```
+
+## Model 1: Main effect only
+
+### Data-generating model
+```{r}
+people <- tibble(
+  id = 1:n,
+  single = if_else(runif(n) > 0.5, 1, 0),
+  single_f = factor(single, 0:1, c("in relationship", "single")),
+  average_job_satisfaction = rnorm(n),
+  average_relationship_satisfaction = rnorm(n),
+  average_well_being = rnorm(n, if_else(single == 1, -0.5, 0.5))
+)
+diary <-  people %>% full_join(
+  tibble(
+    id = rep(1:n, each = days_per_person),
+  ), by = 'id') %>% 
+  mutate(
+    Job_satisfaction = rnorm(n_days, average_job_satisfaction),
+    Relationship_satisfaction = rnorm(n_days, average_relationship_satisfaction),
+    OWB = Job_satisfaction + 3 * rnorm(n_days, average_well_being)
+  )
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+### Inspect correlations
+```{r}
+cor.test(diary$Job_satisfaction, diary$OWB)
+diary %>% group_by(single_f) %>%
+  summarise(cor(Job_satisfaction, OWB))
+```
+
+### Scatter plots
+```{r}
+ggplot(diary, aes(Job_satisfaction, OWB)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm")
+ggplot(diary, aes(Job_satisfaction, OWB)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm") +
+  facet_wrap(~ id)
+
+cors <- diary %>% group_by(single_f) %>%
+  do(broom::tidy(cor.test(.$Job_satisfaction, .$OWB)))
+
+ggplot(diary, aes(Job_satisfaction, OWB, color = single_f)) +
+  facet_wrap(~ single_f) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(guide = F)+
+  geom_text(aes(label = sprintf("%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), x= 0, y=-13, data = cors) +
+  theme_bw()
+```
+
+
+### Models
+```{r}
+m_simple <- brm(bf(OWB ~ Job_satisfaction + (1|id)), data = diary, 
+               cores = 4, iter = 2000, file = "models/dgm_main/m_simple", 
+               backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_sigma <- brm(bf(OWB ~ Job_satisfaction + (1|id),
+                sigma ~ single), data = diary, 
+               cores = 4, iter = 2000, file = "models/dgm_main/m_sigma", 
+               backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_int <- brm(bf(OWB ~ Job_satisfaction * single) + (1|id), data = diary, 
+             cores = 4, iter = 2000, file = "models/dgm_main/m_int",
+                 backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_sigma_int <- brm(bf(OWB ~ Job_satisfaction * single + (1|id),
+                     sigma ~ single), data = diary, 
+                 cores = 4, iter = 2000, file = "models/dgm_main/m_sigma_int",
+                 backend = "cmdstanr") %>%
+  add_criterion("loo")
+```
+
+### Inferences
+```{r}
+knitr::kable(fixef(m_int))
+knitr::kable(fixef(m_sigma))
+loo_compare(m_simple, m_int)
+loo_compare(m_simple, m_sigma)
+loo_compare(m_simple, m_int, m_sigma, m_sigma_int)
+```
+
+## Model 2: Difference in residual variance, but not slope
+
+### Data-generating model
+```{r}
+diary <-  diary %>% 
+  mutate(
+    OWB = Job_satisfaction + (1-single) * Relationship_satisfaction + 3 * rnorm(n_days, average_well_being)
+  )
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+### Inspect correlations
+```{r}
+cor.test(diary$Job_satisfaction, diary$OWB)
+diary %>% group_by(single_f) %>%
+  summarise(cor(Job_satisfaction, OWB))
+```
+
+### Scatter plots
+```{r}
+ggplot(diary, aes(Job_satisfaction, OWB)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm")
+
+cors <- diary %>% group_by(single_f) %>%
+  do(broom::tidy(cor.test(.$Job_satisfaction, .$OWB)))
+
+ggplot(diary, aes(Job_satisfaction, OWB, color = single_f)) +
+  facet_wrap(~ single_f) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(guide = F)+
+  geom_text(aes(label = sprintf("%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), x= 0, y=-13, data = cors) +
+  theme_bw()
+```
+
+
+
+### Models
+```{r}
+m_simple <- brm(bf(OWB ~ Job_satisfaction + (1|id)), data = diary, 
+               cores = 4, iter = 2000, file = "models/dgm_sig/m_simple", 
+               backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_sigma <- brm(bf(OWB ~ Job_satisfaction + (1|id),
+                sigma ~ single), data = diary, 
+               cores = 4, iter = 2000, file = "models/dgm_sig/m_sigma", 
+               backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+ m_int <- brm(bf(OWB ~ Job_satisfaction * single) + (1|id), data = diary, 
+             cores = 4, iter = 2000, file = "models/dgm_sig/m_int",
+                 backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_sigma_int <- brm(bf(OWB ~ Job_satisfaction * single + (1|id),
+                     sigma ~ single), data = diary, 
+                 cores = 4, iter = 2000, file = "models/dgm_sig/m_sigma_int",
+                 backend = "cmdstanr") %>%
+  add_criterion("loo")
+```
+
+### Inferences
+```{r}
+knitr::kable(fixef(m_int))
+knitr::kable(fixef(m_sigma))
+loo_compare(m_simple, m_int)
+loo_compare(m_simple, m_sigma)
+loo_compare(m_simple, m_int, m_sigma, m_sigma_int)
+```
+
+
+## Model 3: Difference in residual variance and slope cancel out in correlation
+
+### Data-generating model
+```{r}
+n <- 2000
+diary <- tibble(
+  close_friend = if_else(runif(n) > 0.5, 1, 0),
+  months_known = rpois(n, 5 + 3*close_friend),
+  trait = rnorm(n),
+  close_friend_f = factor(close_friend, 0:1, c("acquaintance", "close friend")),
+  perception = (1 + close_friend) * trait + (1 + 2*close_friend) * rnorm(n)
+)
+round(cor(diary %>% select(-close_friend_f)),2)
+```
+
+### Inspect correlations
+```{r}
+cor.test(diary$trait, diary$perception)
+diary %>% group_by(close_friend) %>%
+  summarise(cor(trait, perception))
+diary %>% group_by(months_known) %>%
+  summarise(cor(trait, perception), n())
+```
+
+### Scatter plots
+```{r}
+ggplot(diary, aes(trait, perception)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm")
+
+(cors <- diary %>% group_by(close_friend_f) %>%
+  do(broom::tidy(cor.test(.$trait, .$perception))))
+slopes <- diary %>% group_by(close_friend_f) %>%
+  do(broom::tidy(lm(.$perception ~ .$trait), conf.int = TRUE)[2,])
+
+ggplot(diary, aes(trait, perception, color = close_friend_f)) +
+  facet_wrap(~ close_friend_f, labeller = labeller(close_friend_f = c("acquaintance"= "Moderator 0","close friend" = "Moderator 1"))) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(guide = F)+
+  geom_text(aes(label = sprintf("r=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), x= -2, y=-9, data = cors) +
+  geom_text(aes(label = sprintf("b=%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), x= -2, y=-10, data = slopes) +
+  xlab("Var X") +
+  ylab("Var Y") +
+  theme_bw()
+
+ggplot(diary, aes(trait, perception)) +
+  geom_point(alpha = 0.1) +
+  facet_wrap(~ months_known)
+  # geom_smooth(method = "lm")
+```
+
+
+### Models
+```{r}
+m_simple <- brm(perception ~ trait, data = diary, 
+               cores = 4, iter = 2000, file = "models/dgm_sig_int_nocor/m_simple", 
+               backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_sigma <- brm(bf(perception ~ trait,
+                sigma ~ close_friend + months_known), data = diary, 
+               cores = 4, iter = 2000, file = "models/dgm_sig_int_nocor/m_sigma", 
+               backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_int <- brm(bf(perception ~ trait * (close_friend + months_known)), data = diary, 
+             cores = 4, iter = 2000, file = "models/dgm_sig_int_nocor/m_int",
+                 backend = "cmdstanr") %>%
+  add_criterion("loo")
+
+m_sigma_int <- brm(bf(perception ~ trait * (close_friend),
+                     sigma ~ close_friend), data = diary, 
+                 cores = 4, iter = 2000, file = "models/dgm_sig_int_nocor/m_sigma_int",
+                 backend = "cmdstanr") %>%
+  add_criterion("loo")
+```
+
+### Inferences
+```{r}
+knitr::kable(fixef(m_int))
+knitr::kable(fixef(m_sigma))
+knitr::kable(fixef(m_sigma_int))
+loo_compare(m_simple, m_int)
+loo_compare(m_simple, m_sigma)
+loo_compare(m_simple, m_int, m_sigma, m_sigma_int)
+```
+
+
+
+```{r}
+diary <- tibble(
+  close_friend = if_else(runif(n) > 0.8, 1, 0),
+  months_known = rpois(n, 5 + 3*close_friend),
+  trait = rnorm(n),
+  perception = (close_friend + 1)* trait + (1 + close_friend) * rnorm(1000)
+)
+round(cor(diary),2)
+
+cor.test(diary$trait, diary$perception)
+diary %>% group_by(close_friend) %>%
+  summarise(cor(trait, perception))
+diary %>% group_by(months_known) %>%
+  summarise(cor(trait, perception), n())
+
+ggplot(diary, aes(trait, perception)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+diary$close_friend_f <- factor(diary$close_friend, 0:1, c("acquaintance", "close friend"))
+
+cors <- diary %>% group_by(close_friend_f) %>%
+  do(broom::tidy(cor.test(.$trait, .$perception)))
+
+ggplot(diary, aes(trait, perception, color = close_friend_f)) +
+  facet_wrap(~ close_friend_f) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm") +
+  scale_color_discrete(guide = F)+
+  geom_text(aes(label = sprintf("%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), x= 0, y=-13, data = cors) +
+  theme_bw()
+```
+
+
+## Cohen's
+```{r}
+library(effsize)
+n <- 5000
+
+prepost <- tibble(
+  id = 1:n,
+  treatment = rep(1:2, each = n/2),
+  t1 = rnorm(n),
+  t2 = t1 - treatment + rnorm(n, 0, 1.5)
+)
+sd(prepost$t2)
+cohen.d(t2 ~ treatment, prepost)
+cohen.d(t2-t1 ~ treatment, prepost)
+
+prepost <- tibble(
+  id = 1:n,
+  treatment = rep(1:2, each = n/2),
+  t1 = rnorm(n),
+  t2 = t1 - treatment + rnorm(n, 0, treatment)
+)
+sd(prepost$t2)
+cohen.d(t2 ~ treatment, prepost)
+cohen.d(t2-t1 ~ treatment, prepost)
+ggplot(prepost, aes(t1, t2, color = treatment)) +
+  geom_point(alpha = 0.1) +
+  geom_pointrange(aes(0, t2), fun.data = "mean_se", stat = "summary") +
+  geom_smooth(method = 'lm') +
+  geom_abline(intercept = 0, slope = 1, linetype = 'dashed') +
+  facet_wrap(~ treatment)
+```
+

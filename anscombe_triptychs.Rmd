@@ -1,0 +1,171 @@
+---
+title: "anscombe_triptychs"
+author: "Ruben Arslan"
+date: "22/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+library(tidyverse)
+n <- 5000
+library(brms)
+set.seed(20191005)
+```
+
+```{r}
+cases <- list()
+```
+
+### Assumed case
+```{r}
+moderation <-  tibble(
+  X = rnorm(n),
+  M = rnorm(n),
+  M_f = case_when(
+    M < quantile(M, probs = c(1/3)) ~ "0-33%",
+    M > quantile(M, probs = c(2/3)) ~ "66-100%",
+    TRUE ~ "33-66%"
+  ),
+  residual = rnorm(n),
+  Y = 0.3*X + 0.8*M + 0.2 * X * M + 0.5 * residual
+)
+sd(moderation$Y)
+```
+
+```{r}
+round(coef(lm(Y ~ X*M, moderation)),2)
+ggplot(moderation, 
+       aes(X, Y)) +
+  geom_smooth(method = "lm") +
+  facet_wrap(~ M_f)
+
+ggplot(moderation, 
+       aes(X, Y)) +
+  geom_point(aes(color = M), alpha = 0.1) +
+  geom_smooth(method = "lm") +
+  scale_color_viridis_c(guide = F) +
+  facet_wrap(~ M_f)
+
+cases$assumed <- moderation
+```
+
+## Floor effect
+```{r}
+moderation <-  cases$assumed %>% 
+  mutate(
+      Y = -0.4 + 0.5*X + 1.4*M + 0.5 * residual,
+      Y = if_else(Y < -0.7, -0.7, Y) - 0.03
+  )
+sd(moderation$Y)
+mean(moderation$Y)
+round(coef(lm(Y ~ X*M, moderation)),2)
+round(coef(lm(Y ~ X*M, cases$assumed)),2)
+```
+
+```{r}
+# ggplot(moderation, 
+#        aes(X, Y)) +
+#   geom_smooth(method = "lm") +
+#   facet_wrap(~ M_f)
+# 
+ggplot(moderation, 
+       aes(X, Y)) +
+  geom_point(aes(color = M), alpha = 0.1) +
+  geom_smooth(method = "lm") +
+  scale_color_viridis_c(guide = F) +
+  facet_wrap(~ M_f)
+
+cases$floor <- moderation
+```
+
+
+## Residual variance
+```{r}
+moderation <-  cases$assumed %>% 
+  mutate(
+      Y = 0.3*X + 0.8*M + 0.2 * X * M + exp((M+2)/1.7)/9*residual
+  )
+sd(moderation$Y)
+mean(moderation$Y)
+round(coef(lm(Y ~ X*M, moderation)),2)
+round(coef(lm(Y ~ X*M, cases$assumed)),2)
+```
+
+```{r}
+moderation %>% group_by(M_f) %>% 
+  do(broom::tidy(cor.test(.$X, .$Y)))
+
+round(coef(lm(Y ~ X*M, moderation)),2)
+ggplot(moderation, 
+       aes(X, Y)) +
+  geom_smooth(method = "lm") +
+  facet_wrap(~ M_f)
+
+ggplot(moderation, 
+       aes(X, Y)) +
+  geom_point(aes(color = M), alpha = 0.1) +
+  geom_smooth(method = "lm") +
+  scale_color_viridis_c(guide = F) +
+  facet_wrap(~ M_f)
+
+cases$residual <- moderation
+```
+
+## Triptychs
+```{r}
+three_cases <- bind_rows(cases, .id = "case")
+
+ggplot(three_cases, 
+       aes(X, Y)) +
+  # geom_point(aes(color = M), alpha = 0.1) +
+  geom_line(stat = 'smooth', method = "lm") +
+  scale_color_viridis_c(guide = F) +
+  facet_grid(case ~ M_f) +
+  theme_minimal()
+
+ggplot(three_cases, 
+       aes(X, Y)) +
+  geom_point(aes(color = M), alpha = 0.1) +
+  geom_smooth(method = "lm", color = 'black') +
+  scale_color_viridis_c(guide = F) +
+  facet_grid(case ~ M_f) +
+  theme_minimal() +
+  coord_cartesian(ylim = c(-3, +4))
+ggsave("anscombe_triptychs.pdf", width = 6, height = 6)
+ggsave("anscombe_triptychs.png", width = 6, height = 6)
+```
+
+
+
+
+
+
+
+### Floor kills crossover
+```{r}
+moderation <-  moderation %>% 
+  mutate(
+      Y = -0.4 + 0.3*X + 2*M + 1 * X * M + 0.5 * residual
+      # Y = if_else(Y < -0.7, -0.7, Y) - 0.03
+  )
+
+sd(moderation$Y)
+```
+
+```{r}
+round(coef(lm(Y ~ X*M, moderation)),2)
+
+ggplot(moderation, 
+       aes(X, Y)) +
+  geom_point(aes(color = M), alpha = 0.1) +
+  geom_smooth(method = "lm") +
+  scale_color_viridis_c(guide = F) +
+  facet_wrap(~ M_f)
+
+```
