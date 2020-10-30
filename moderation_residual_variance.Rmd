@@ -2,65 +2,212 @@
 
 ```{r}
 library(tidyverse)
-n <- 50
-days_per_person <- 300
-n_days <- n*days_per_person
 library(brms)
-set.seed(20191005)
 ```
 
-## Model 1: Main effect only
+
 
 ### Data-generating model
 ```{r}
+n <- 50
+days_per_person <- 300
+n_days <- n*days_per_person
+set.seed(20191005)
 people <- tibble(
   id = 1:n,
-  single = if_else(runif(n) > 0.5, 1, 0),
+  single = rep(0:1, each = n/2),
   single_f = factor(single, 0:1, c("in relationship", "single")),
   average_job_satisfaction = rnorm(n),
   average_relationship_satisfaction = rnorm(n),
-  average_well_being = rnorm(n, if_else(single == 1, -0.5, 0.5))
+  average_well_being = rnorm(n)
 )
+sd(people$average_well_being)
+
 diary <-  people %>% full_join(
   tibble(
     id = rep(1:n, each = days_per_person),
   ), by = 'id') %>% 
   mutate(
-    Job_satisfaction = rnorm(n_days, average_job_satisfaction),
-    Relationship_satisfaction = rnorm(n_days, average_relationship_satisfaction),
-    OWB = Job_satisfaction + 3 * rnorm(n_days, average_well_being)
+    Job_satisfaction = 0.8 * average_job_satisfaction + 0.6 * rnorm(n_days),
+    Relationship_satisfaction = 0.8 * average_relationship_satisfaction + 0.6 * rnorm(n_days),
+    residual = rnorm(n_days)
   )
+sd(diary$Job_satisfaction)
+sd(diary$Relationship_satisfaction)
+sd(diary$residual)
+```
+
+## Model 0: Main effect only
+```{r}
+diary <- diary %>% 
+  mutate(
+    OWB = 0.5 * Job_satisfaction + 0.5*average_well_being + 0.7 * residual
+  )
+sd(diary$OWB)
 round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
 ```
 
 ### Inspect correlations
 ```{r}
 cor.test(diary$Job_satisfaction, diary$OWB)
-diary %>% group_by(single_f) %>%
-  summarise(cor(Job_satisfaction, OWB))
+diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(mean(cor))
 ```
 
-### Scatter plots
+### Scatter plot
 ```{r}
-ggplot(diary, aes(Job_satisfaction, OWB)) +
-  geom_point(alpha = 0.1) +
-  geom_smooth(method = "lm")
-ggplot(diary, aes(Job_satisfaction, OWB)) +
-  geom_point(alpha = 0.1) +
-  geom_smooth(method = "lm") +
-  facet_wrap(~ id)
+cors <- diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(estimate = mean(cor))
 
-cors <- diary %>% group_by(single_f) %>%
-  do(broom::tidy(cor.test(.$Job_satisfaction, .$OWB)))
+model <- brm(OWB ~ Job_satisfaction*single_f, data = diary, cores = 4, backend = "cmdstanr", file = "main_only")
 
-ggplot(diary, aes(Job_satisfaction, OWB, color = single_f)) +
+diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model)
+
+
+ggplot(diary, aes(Job_satisfaction, OWB)) +
   facet_wrap(~ single_f) +
-  geom_point(alpha = 0.3) +
-  geom_smooth(method = "lm") +
-  scale_color_discrete(guide = F)+
-  geom_text(aes(label = sprintf("%.2f [%.2f;%.2f]", estimate, conf.low, conf.high)), x= 0, y=-13, data = cors) +
-  theme_bw()
+  geom_point(aes(color = factor(id)), alpha = 0.01) +
+  geom_line(aes(Job_satisfaction, estimate__)) +
+  scale_color_viridis_d(guide = F)+
+  geom_text(aes(label = sprintf('italic("r")==%.2f', estimate)), x= -2.5, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  coord_cartesian(ylim = c(-3.5, 3.5)) +
+  xlab("Job satisfaction") +
+  ylab("Overall well-being") +
+  ggthemes::theme_clean()
 ```
+
+
+## Model 1: Slopes differ
+```{r}
+diary <- diary %>% 
+  mutate(
+    OWB = if_else(single == 1, 0.6, 0.4) * Job_satisfaction + 0.5*average_well_being + 0.7 * residual
+  )
+sd(diary$OWB)
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+### Inspect correlations
+```{r}
+cor.test(diary$Job_satisfaction, diary$OWB)
+diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(mean(cor))
+```
+
+### Scatter plot
+```{r}
+cors <- diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(estimate = mean(cor))
+
+model <- brm(OWB ~ Job_satisfaction*single_f, data = diary, cores = 4, backend = "cmdstanr", file = "slopes_differ")
+
+diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model)
+
+
+ggplot(diary, aes(Job_satisfaction, OWB)) +
+  facet_wrap(~ single_f) +
+  geom_point(aes(color = factor(id)), alpha = 0.01) +
+  geom_line(aes(Job_satisfaction, estimate__)) +
+  scale_color_viridis_d(guide = F)+
+  geom_text(aes(label = sprintf('italic("r")==%.2f', estimate)), x= -2.5, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  coord_cartesian(ylim = c(-3.5, 3.5)) +
+  xlab("Job satisfaction") +
+  ylab("Overall well-being") +
+  ggthemes::theme_clean()
+```
+
+## Model 2: Correlations, not slopes differ
+```{r}
+diary <- diary %>% 
+  mutate(
+    OWB = 0.5 * Job_satisfaction + 0.5*average_well_being + if_else(single == 1, 0, 0.7) * Relationship_satisfaction + 0.45 * residual
+  )
+sd(diary$OWB)
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+### Inspect correlations
+```{r}
+diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(mean(cor))
+```
+
+### Scatter plot
+```{r}
+cors <- diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(estimate = mean(cor))
+
+model <- brm(OWB ~ Job_satisfaction*single_f, data = diary, cores = 4, backend = "cmdstanr", file = "corrs_differ_not_slopes")
+
+diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model)
+
+
+ggplot(diary, aes(Job_satisfaction, OWB)) +
+  facet_wrap(~ single_f) +
+  geom_point(aes(color = factor(id)), alpha = 0.01) +
+  geom_line(aes(Job_satisfaction, estimate__)) +
+  scale_color_viridis_d(guide = F)+
+  geom_text(aes(label = sprintf('italic("r")==%.2f', estimate)), x= -2.5, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  coord_cartesian(ylim = c(-3.5, 3.5)) +
+  xlab("Job satisfaction") +
+  ylab("Overall well-being") +
+  ggthemes::theme_clean()
+```
+
+## Model 3: Restricted variance in predictor and outcome
+```{r}
+diary <- diary %>% 
+  mutate(
+    Job_satisfaction2 = if_else(single == 1, Job_satisfaction / 1.3 + 1, Job_satisfaction * 1.08),
+    OWB = 0.5 * Job_satisfaction2 + 0.5*average_well_being + if_else(single == 1, 0, 0.7) * Relationship_satisfaction + 0.45 * residual
+  )
+diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(mean(cor))
+
+sd(diary$Job_satisfaction)
+sd(diary$OWB)
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+### Inspect correlations
+```{r}
+cor.test(diary$Job_satisfaction, diary$OWB)
+diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(mean(cor))
+```
+
+### Scatter plot
+```{r}
+cors <- diary %>% group_by(single_f, id) %>%
+  summarise(cor = cor(Job_satisfaction, OWB)) %>% 
+  summarise(estimate = mean(cor))
+
+model <- brm(OWB ~ Job_satisfaction2*single_f, data = diary, cores = 4, backend = "cmdstanr", file = "restricted_variance")
+
+diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model)
+
+
+ggplot(diary, aes(Job_satisfaction2, OWB)) +
+  facet_wrap(~ single_f) +
+  geom_point(aes(color = factor(id)), alpha = 0.01) +
+  geom_line(aes(color = factor(id)), stat = "smooth", method = 'lm', alpha = 0.3) +
+  geom_line(aes(Job_satisfaction2, estimate__)) +
+  scale_color_viridis_d(guide = F)+
+  geom_text(aes(label = sprintf('italic("r")==%.2f', estimate)), x= -2.5, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  coord_cartesian(ylim = c(-3.5, 3.5)) +
+  xlab("Job satisfaction") +
+  ylab("Overall well-being") +
+  ggthemes::theme_clean()
+```
+
 
 
 ### Models

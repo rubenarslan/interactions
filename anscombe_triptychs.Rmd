@@ -1,5 +1,5 @@
 ---
-title: "anscombe_triptychs"
+title: "Anscombe's triptychs"
 author: "Ruben Arslan"
 date: "22/10/2020"
 output: html_document
@@ -10,78 +10,83 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+We attach the tidyverse packages to simulate the data and the brms package.
 
 ```{r}
 library(tidyverse)
-n <- 5000
 library(brms)
-set.seed(20191005)
 ```
+
+## Basic model
+We first generate the predictors, M and X for 900 rows.
+We set a seed, so that the simulated random numbers are reproducible.
+The following assumptions are made:
+
+- `M` takes one of three values (0, 1, 2) that are equally probable.
+- `X` depends on M to some degree (a coefficient of `0.8`) and varies substantially in addition to that.
+- `X` has a standard deviation of ~1.
+- We already simulate the residual variation for the outcome variable `Y`.
+
 
 ```{r}
 cases <- list()
+n <- 900
+set.seed(20191005)
+moderation <-  tibble(
+  M = sample(0:2, n, replace = TRUE),
+  M_f = factor(M, 0:2, c("low", "medium", "high")),
+  X = 0.8 * (M-1) + rnorm(n, sd = 0.77),
+  residual = rnorm(n)
+)
+sd(moderation$M)
+sd(moderation$X)
 ```
 
-### Assumed case
+
+## "Ideal" case
+Here, we simulate the "ideal" moderation scenario that most people will assume, i.e. there is a causal interaction between X and M, on top of main effects for both X and M. The interaction takes the form of an attenuation of the main effect for X (or, respectively, M).
 ```{r}
-moderation <-  tibble(
-  X = rnorm(n),
-  M = rnorm(n),
-  M_f = case_when(
-    M < quantile(M, probs = c(1/3)) ~ "0-33%",
-    M > quantile(M, probs = c(2/3)) ~ "66-100%",
-    TRUE ~ "33-66%"
-  ),
-  residual = rnorm(n),
-  Y = 0.3*X + 0.8*M + 0.2 * X * M + 0.5 * residual
+moderation <- moderation %>% 
+  mutate(
+  Y = -0.66 + 0.1*X + 0.5*M + 0.3 * X * M + 0.69 * residual
 )
+sd(moderation$X)
 sd(moderation$Y)
 ```
 
 ```{r}
-round(coef(lm(Y ~ X*M, moderation)),2)
-ggplot(moderation, 
-       aes(X, Y)) +
-  geom_smooth(method = "lm") +
-  facet_wrap(~ M_f)
+cases$assumed <- moderation
+round(coef(lm(Y ~ X*M, cases$assumed)),2)
 
-ggplot(moderation, 
+ggplot(cases$assumed, 
        aes(X, Y)) +
   geom_point(aes(color = M), alpha = 0.1) +
   geom_smooth(method = "lm") +
   scale_color_viridis_c(guide = F) +
   facet_wrap(~ M_f)
-
-cases$assumed <- moderation
 ```
 
 ## Floor effect
 ```{r}
 moderation <-  cases$assumed %>% 
   mutate(
-      Y = -0.4 + 0.5*X + 1.4*M + 0.5 * residual,
-      Y = if_else(Y < -0.7, -0.7, Y) - 0.03
+      Y = -1.1 + 0.68*X + 0.8*M + 0.95 * residual,
+      Y = -0.66 + if_else(Y < -0.7, -0.7, Y) + 0.52
   )
 sd(moderation$Y)
-mean(moderation$Y)
 round(coef(lm(Y ~ X*M, moderation)),2)
 round(coef(lm(Y ~ X*M, cases$assumed)),2)
 ```
 
 ```{r}
-# ggplot(moderation, 
-#        aes(X, Y)) +
-#   geom_smooth(method = "lm") +
-#   facet_wrap(~ M_f)
-# 
-ggplot(moderation, 
+cases$floor <- moderation
+
+ggplot(cases$floor, 
        aes(X, Y)) +
   geom_point(aes(color = M), alpha = 0.1) +
   geom_smooth(method = "lm") +
   scale_color_viridis_c(guide = F) +
   facet_wrap(~ M_f)
-
-cases$floor <- moderation
 ```
 
 
@@ -89,7 +94,7 @@ cases$floor <- moderation
 ```{r}
 moderation <-  cases$assumed %>% 
   mutate(
-      Y = 0.3*X + 0.8*M + 0.2 * X * M + exp((M+2)/1.7)/9*residual
+      Y = -0.66 + 0.1*X + 0.5*M + 0.3 * X * M + 0.49*((exp(M)/3-0.2))*residual
   )
 sd(moderation$Y)
 mean(moderation$Y)
@@ -98,74 +103,82 @@ round(coef(lm(Y ~ X*M, cases$assumed)),2)
 ```
 
 ```{r}
+cases$residual <- moderation
+
 moderation %>% group_by(M_f) %>% 
   do(broom::tidy(cor.test(.$X, .$Y)))
+moderation %>% group_by(M_f) %>% 
+  do(broom::tidy(cor.test(.$X, resid(lm(.$Y ~ .$M)))))
 
+# plot(lm(Y ~ X*M, moderation))
 round(coef(lm(Y ~ X*M, moderation)),2)
-ggplot(moderation, 
-       aes(X, Y)) +
-  geom_smooth(method = "lm") +
-  facet_wrap(~ M_f)
 
-ggplot(moderation, 
+ggplot(cases$residual, 
        aes(X, Y)) +
   geom_point(aes(color = M), alpha = 0.1) +
   geom_smooth(method = "lm") +
   scale_color_viridis_c(guide = F) +
   facet_wrap(~ M_f)
-
-cases$residual <- moderation
 ```
 
 ## Triptychs
 ```{r}
+options(digits = 2)
+options(pillar.sigfig = 3)
+
+
+model <- list()
+model$assumed <- brm(Y ~ X*M, data = cases$assumed, cores = 4, backend = "cmdstanr")
+model$floor <- brm(Y ~ X*M, data = cases$floor, cores = 4, backend = "cmdstanr")
+library(cowplot)
+plot_grid(pp_check(model$assumed) + guides(color = F), pp_check(model$floor) + theme(legend.position = c(1,0.9), legend.justification = "right"), pp_check(model$residual) + guides(color = F), nrow = 1, labels = "AUTO", label_size = 6)
+ggsave("three_dgms_ppc.pdf", width = 5, height = 2)
+ggsave("three_dgms_ppc.png", width = 5, height = 2)
+model$residual <- brm(Y ~ X*M_f, data = cases$residual, cores = 4, backend = "cmdstanr")
+
+cases$assumed[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model$assumed)
+
+cases$floor[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model$floor)
+
+cases$residual[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model$residual)
+
+
 three_cases <- bind_rows(cases, .id = "case")
+three_cases %>% select(-M_f, -ends_with("__")) %>% group_by(case) %>% summarise_all(list(~mean(.), ~sd(.)))
+three_cases %>% group_by(case) %>% do(broom::tidy(lm(Y ~ X*M, .))) %>% select(case, term, estimate) %>% tidyr::pivot_wider(id_cols = case, names_from = term, values_from = estimate)
 
 ggplot(three_cases, 
        aes(X, Y)) +
   # geom_point(aes(color = M), alpha = 0.1) +
-  geom_line(stat = 'smooth', method = "lm") +
+  geom_line(aes(X, estimate__)) +
   scale_color_viridis_c(guide = F) +
   facet_grid(case ~ M_f) +
   theme_minimal()
 
+(cors <- three_cases %>% group_by(case, M_f) %>%
+  do(broom::tidy(cor.test(.$X, .$Y))))
+```
+
+
+```{r}
 ggplot(three_cases, 
        aes(X, Y)) +
   geom_point(aes(color = M), alpha = 0.1) +
-  geom_smooth(method = "lm", color = 'black') +
-  scale_color_viridis_c(guide = F) +
-  facet_grid(case ~ M_f) +
-  theme_minimal() +
-  coord_cartesian(ylim = c(-3, +4))
+  geom_line(aes(X, estimate__), color = "black") +
+  scale_color_viridis_c(guide = F, begin = 0.2, end = 0.8) +
+  facet_grid(case ~ M_f, labeller = labeller(
+    case = c("assumed" = '"ideal" case', 
+             "floor" = "floor effect,\nno latent interaction",
+             "residual" = "smaller correlation\nat largest slope"),
+    M_f = c("low" = "Moderator: low",
+            "medium" = "Moderator: medium",
+            "high" = "Moderator: high"))) +
+  geom_text(aes(label = sprintf('italic("r")==%.2f', estimate, conf.low, conf.high)), x= -2.5, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  ggthemes::theme_clean() +
+  coord_cartesian(ylim = c(-2.5,3.6))
+
 ggsave("anscombe_triptychs.pdf", width = 6, height = 6)
 ggsave("anscombe_triptychs.png", width = 6, height = 6)
 ```
 
 
-
-
-
-
-
-### Floor kills crossover
-```{r}
-moderation <-  moderation %>% 
-  mutate(
-      Y = -0.4 + 0.3*X + 2*M + 1 * X * M + 0.5 * residual
-      # Y = if_else(Y < -0.7, -0.7, Y) - 0.03
-  )
-
-sd(moderation$Y)
-```
-
-```{r}
-round(coef(lm(Y ~ X*M, moderation)),2)
-
-ggplot(moderation, 
-       aes(X, Y)) +
-  geom_point(aes(color = M), alpha = 0.1) +
-  geom_smooth(method = "lm") +
-  scale_color_viridis_c(guide = F) +
-  facet_wrap(~ M_f)
-
-```
