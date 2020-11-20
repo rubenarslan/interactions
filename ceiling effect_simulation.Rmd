@@ -1,0 +1,98 @@
+# Issues with Interactions
+## Ceiling Effect Simulation
+
+```{r}
+set.seed(12345)
+library(tidyverse)
+n <- 2000
+ceiling <- tibble(
+  Moderator = rep(0:1, each = n/2),
+  pred = 1.4 * Moderator + 0.7 * rnorm(n),
+  out = 0.7 * pred + 0.75 * rnorm(n)
+) %>% 
+  mutate(
+  Moderator = as.factor(Moderator)
+  )
+
+library(ggplot2)
+theme_set(ggthemes::theme_clean())
+p1 <- ggplot(data = ceiling, aes(x = pred, y = out, color = Moderator)) +
+  geom_point(alpha = .1) +
+  geom_smooth(method = "lm", formula = y~x) +
+  coord_cartesian(ylim = c(min(ceiling$out), max(ceiling$out))) +
+  xlab("Predictor") +
+  ylab("Outcome") +
+  scale_color_viridis_d(guide = F, begin = 0.3, end = 0.8) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+p1
+ggsave("noceil.png", width = 3, height = 3)
+
+
+ceiling$cens <- ceiling$out
+ceiling$cens[ceiling$cens > 1.3] <- 1.3
+p2 <- ggplot(data = ceiling, aes(x = pred, y = cens, color = Moderator)) +
+  geom_point(alpha = .1) +
+  geom_smooth(method = "lm", formula = y~x) +
+  coord_cartesian(ylim = c(min(ceiling$out), max(ceiling$out))) +
+  xlab("Predictor") +
+  ylab("Outcome with ceiling") +
+  scale_color_viridis_d(begin = 0.3, end = 0.8) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+p2
+ggsave("ceil.png", width = 3, height = 3)
+
+
+ceiling$ordinal <- ceiling$out
+ceiling$ordinal[ceiling$ordinal > 1] <- 1
+ceiling$ordinal[ceiling$ordinal < -2] <- -2
+ceiling$ordinal <- round(ceiling$ordinal)
+p3 <- ggplot(data = ceiling, aes(x = pred, y = ordinal, color = Moderator)) +
+  geom_point(alpha = .1) +
+  geom_smooth(method = "lm", formula = y~x) +
+  coord_cartesian(ylim = c(min(ceiling$out), max(ceiling$out))) +
+  scale_color_viridis_d(guide = F, begin = 0.3, end = 0.8) +
+  xlab("Predictor") +
+  ylab("Outcome measured on Likert scale") +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+p3
+ggsave("ordinal.png", width = 3, height = 3)
+
+
+library(cowplot)
+plot_grid(p1, p2 + theme(legend.title = element_text(size = 9), legend.background = element_blank(), legend.position = c(0.5,0.85), legend.justification = "right"), p3, labels = c("A", "B", "C"), nrow = 1, align = "hv", axis = "lb")
+ggsave("multi.png", width = 7, height = 3)
+ggsave("multi.pdf", width = 7, height = 3)
+
+library(brms)
+
+# original data: no interaction
+summary(brm(out ~ pred*Moderator, data = ceiling,  cores = 4, backend = "cmdstanr", file = "original_no_interaction"))
+
+# with ceiling effect: interaction
+summary(uncensored <-brm(cens ~ pred*Moderator, data = ceiling,  cores = 4, backend = "cmdstanr", file = "ceiling_effect"))
+
+# with ordinal variable: interaction
+summary(brm(ordinal ~ pred*Moderator, data = ceiling, cores = 4, backend = "cmdstanr", file = "ordinal_as_gaussian"))
+
+
+
+qplot(ceiling$ordinal)
+qplot(ceiling$cens)
+# Now let's set up a better model in brms
+## first we set a variable that tells us which values are censored and in what way
+ceiling$censored <- "none"
+ceiling$censored[ceiling$cens >= 1.3] <- "right"
+table(ceiling$censored)
+
+censored <- brm(cens|cens(censored) ~ pred*Moderator, data = ceiling,  cores = 4, backend = "cmdstanr", file = "censored")
+summary(censored)
+loo(uncensored, censored)
+
+ceiling$ordinal <- factor(ceiling$ordinal, ordered = TRUE)
+
+ordinal <- brm(ordinal ~ pred*Moderator, data = ceiling, family = cumulative(),  cores = 4, backend = "cmdstanr", file = "cumulative")
+summary(ordinal)
+```
