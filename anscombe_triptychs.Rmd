@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
 
 
@@ -128,13 +128,18 @@ options(pillar.sigfig = 3)
 
 
 model <- list()
-model$assumed <- brm(Y ~ X*M, data = cases$assumed, cores = 4, backend = "cmdstanr")
-model$floor <- brm(Y ~ X*M, data = cases$floor, cores = 4, backend = "cmdstanr")
+model$assumed <- brm(Y ~ X*M_f, data = cases$assumed, cores = 4, backend = "cmdstanr", file = "assumed")
+model$floor <- brm(Y ~ X*M_f, data = cases$floor, cores = 4, backend = "cmdstanr", file = "floor")
+model$residual <- brm(Y ~ X*M_f, data = cases$residual, cores = 4, backend = "cmdstanr", file = "residual")
+
+fixed_model <- list()
+fixed_model$assumed <- brm(Y ~ X*M_f, data = cases$assumed, cores = 4, backend = "cmdstanr", file = "assumed")
+fixed_model$floor <- brm(Y | cens(censored) ~ X*M_f, data = cases$floor %>% mutate(censored = if_else(Y < -0.83, "left", "none")), cores = 4, backend = "cmdstanr", file = "fixed_floor")
+fixed_model$residual <- brm(bf(Y ~ X*M_f, sigma ~ M_f), data = cases$residual, cores = 4, backend = "cmdstanr", file = "fixed_residual")
+
+library(bayesplot)
+
 library(cowplot)
-plot_grid(pp_check(model$assumed) + guides(color = F), pp_check(model$floor) + theme(legend.position = c(1,0.9), legend.justification = "right"), pp_check(model$residual) + guides(color = F), nrow = 1, labels = "AUTO", label_size = 6)
-ggsave("three_dgms_ppc.pdf", width = 5, height = 2)
-ggsave("three_dgms_ppc.png", width = 5, height = 2)
-model$residual <- brm(Y ~ X*M_f, data = cases$residual, cores = 4, backend = "cmdstanr")
 
 cases$assumed[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model$assumed)
 
@@ -155,16 +160,17 @@ ggplot(three_cases,
   facet_grid(case ~ M_f) +
   theme_minimal()
 
-(cors <- three_cases %>% group_by(case, M_f) %>%
-  do(broom::tidy(cor.test(.$X, .$Y))))
 ```
 
 
 ```{r}
+(cors <- three_cases %>% group_by(case, M_f) %>%
+  do(broom::tidy(cor.test(.$X, .$Y))))
 ggplot(three_cases, 
        aes(X, Y)) +
   geom_point(aes(color = M), alpha = 0.1) +
-  geom_line(aes(X, estimate__), color = "black") +
+  geom_smooth(aes(X, estimate__, ymin = lower__, ymax = upper__), 
+              color = "black", stat = 'identity') +
   scale_color_viridis_c(guide = F, begin = 0.2, end = 0.8) +
   facet_grid(case ~ M_f, labeller = labeller(
     case = c("assumed" = '"ideal" case', 
@@ -179,6 +185,30 @@ ggplot(three_cases,
 
 ggsave("anscombe_triptychs.pdf", width = 6, height = 6)
 ggsave("anscombe_triptychs.png", width = 6, height = 6)
+```
+
+
+## Posterior predictive checks
+```{r}
+
+plot_grid(
+  pp_check(model$assumed) + guides(color = F), # pp_check(model$assumed, type = "error_scatter_avg", alpha = 0.1),
+  pp_check(model$floor) + theme(legend.position = c(1,0.9), legend.justification = "right"), # pp_check(model$floor, type = "error_scatter_avg", alpha = 0.1), 
+  pp_check(model$residual) + guides(color = F),
+#  pp_check(model$residual, type = "error_scatter_avg", alpha = 0.1),
+  nrow = 1, labels = "AUTO", label_size = 6, axis = "lb", align = "hv")
+ggsave("three_dgms_ppc.pdf", width = 5, height = 2)
+ggsave("three_dgms_ppc.png", width = 5, height = 2)
+
+plot_grid(
+  pp_check(fixed_model$assumed) + guides(color = F), #pp_check(fixed_model$assumed, type = "error_scatter_avg", alpha = 0.1),
+  pp_check(fixed_model$floor) + theme(legend.position = c(1,0.9), legend.justification = "right"),# pp_check(fixed_model$floor, type = "error_scatter_avg", alpha = 0.1), 
+  pp_check(fixed_model$residual) + guides(color = F),
+ # pp_check(fixed_model$residual, type = "error_scatter_avg", alpha = 0.1),
+  nrow = 1, labels = "AUTO", label_size = 6, axis = "lb", align = "hv")
+ggsave("fixed3_dgms_ppc.pdf", width = 5, height = 2)
+ggsave("fixed3_dgms_ppc.png", width = 5, height = 2)
+
 ```
 
 
