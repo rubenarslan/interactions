@@ -1,0 +1,95 @@
+# Differences in slopes or residual variance
+
+```{r}
+library(tidyverse)
+library(brms)
+```
+
+
+
+### Data-generating model
+```{r}
+set.seed(201910052)
+n <- 1000
+people <- tibble(
+  id = 1:n,
+  days_WFH = rep(0:5, length.out = n),
+  parent = id > n/2,
+  sleep = rnorm(n, if_else(parent, 6, 8), if_else(parent, 5, 1)),
+  RandomVariation = rnorm(n)
+)
+
+table(round(people$sleep))
+xtabs(~ parent + days_WFH, people)
+sd(diary$Job_satisfaction)
+sd(diary$residual)
+table(people$days_WFH)
+```
+
+
+## Model 1: Variance in outcome increases with moderator, predictor variance is lower
+### DGM
+```{r}
+people <- people %>% mutate(
+  Productivity = 20 + sleep + if_else(parent, 0.31, 0.1) * days_WFH + 1.75 * RandomVariation
+)
+ggplot(data = people) + geom_histogram(aes(sleep, fill = parent), position = position_identity(), alpha = 0.4)
+ggplot(data = people) + geom_histogram(aes(Productivity, fill = parent), position = position_identity(), alpha = 0.4)
+```
+
+### Fit LM
+```{r}
+model <- brm(Productivity ~ parent * days_WFH, data = people, cores = 4, backend = "cmdstanr", file = "productivity_parents_mean2")
+model2 <- brm(bf(Productivity ~ parent * days_WFH, 
+                 sigma ~ parent), data = people, cores = 4, backend = "cmdstanr", file = "productivity_parents_mean_sigma2")
+people[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
+```
+
+### Inspect correlations
+```{r}
+(cors <- people %>% group_by(parent) %>%
+  summarise(cor = cor(days_WFH, Productivity),
+            slope = broom::tidy(lm(Productivity ~ days_WFH))[2, "estimate"][[1]],
+            sd_resid = sd(resid(lm(Productivity ~ days_WFH))),
+            sd_prod = sd(Productivity),
+            mean_prod = mean(Productivity),
+            max_js = max(days_WFH),
+            mean_js = mean(days_WFH),
+            mean_est = mean(estimate__),
+            sd_js = sd(days_WFH))
+)
+```
+
+### Scatter plot
+```{r}
+m6 <- ggplot(people, aes(days_WFH, Productivity)) +
+  facet_wrap(~ parent, labeller = labeller(parent = c("TRUE" = "parent", "FALSE" = "non-parent"))) +
+  geom_point(alpha = 0.1, color = "#6E9181") +
+  # geom_line(aes(color = factor(if_else(id > 25, id - 24.5, as.numeric(id)))), stat = "smooth", method = 'lm', alpha = 0.3) +
+  geom_smooth(aes(days_WFH, Productivity), method = 'lm', color = 'black') +
+  geom_text(aes(max_js - 3, mean_est + 1.1, label = sprintf('b==plain("%.2f")', slope)), data = cors, hjust = 0, parse = TRUE, size = 3) +
+
+  scale_color_viridis_d(guide = F, option = "B")+
+  geom_text(aes(label = sprintf('italic("r")==plain("%.2f")', cor)), x= 0.5, y=39, data = cors, hjust = 0, parse = TRUE, size = 3) +
+
+  geom_text(aes(max_js + 0.3, y = mean_prod - 2, label = sprintf('sigma[y]==plain("%.2f")', sd_prod)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  geom_segment(aes(x = max_js + 0.55, y = mean_prod - sd_prod/2, xend = max_js + 0.55, yend = mean_prod + sd_prod/2), data = cors, size = 1, color = "#219FD8") +
+
+  geom_text(aes(max_js + 0.9, y = mean_prod - 2, label = sprintf('sigma[res(y)]==plain("%.2f")', sd_resid)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  geom_segment(aes(x = max_js + 1.15, y = mean_prod - sd_resid/2, xend = max_js + 1.15, yend = mean_prod + sd_resid/2), data = cors, size = 1, color = "#219FD8") +
+
+  geom_text(aes(label = sprintf('sigma[x]==plain("%.1f")', sd_js),  x= mean_js - .7, y = 16), data = cors, hjust = 0, parse = TRUE, size = 3) +
+  geom_segment(aes(x = mean_js - sd_js/2, y = 15, xend = mean_js + sd_js/2, yend = 15), data = cors, size = 1, color = "#219FD8") +
+  
+
+  # coord_cartesian(ylim = c(-3.5, 3.5)) +
+  scale_x_continuous("Days worked from home", breaks = 0:5) +
+  ylab("Productivity (h)") +
+  ggthemes::theme_clean()
+m6
+
+ggsave("parents_slope_vs_corr.pdf", width = 5.5, height = 4)
+ggsave("parents_slope_vs_corr.png", width = 4.5, height = 3)
+```
+
+

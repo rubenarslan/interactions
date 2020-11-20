@@ -1,0 +1,283 @@
+# Differences in slopes or residual variance
+
+```{r}
+library(tidyverse)
+library(brms)
+```
+
+
+
+### Data-generating model
+```{r}
+n <- 50
+days_per_person <- 50
+n_days <- n*days_per_person
+set.seed(20191005)
+people <- tibble(
+  id = 1:n,
+  single = rep(0:1, each = n/2),
+  single_f = factor(single, 0:1, c("in relationship", "single")),
+  average_job_satisfaction = rnorm(n),
+  average_relationship_satisfaction = rnorm(n),
+  average_well_being = rnorm(n)
+)
+sd(people$average_well_being)
+
+diary <-  people %>% full_join(
+  tibble(
+    id = rep(1:n, each = days_per_person),
+  ), by = 'id') %>% 
+  mutate(
+    Job_satisfaction = 0.8 * average_job_satisfaction + 0.6 * rnorm(n_days),
+    Relationship_satisfaction = 0.8 * average_relationship_satisfaction + 0.6 * rnorm(n_days),
+    residual = rnorm(n_days)
+  )
+sd(diary$Job_satisfaction)
+sd(diary$Relationship_satisfaction)
+sd(diary$residual)
+```
+
+## Panel A: Slopes differ
+```{r}
+diary <- diary %>%  
+  mutate(
+    OWB = if_else(single == 1, 0.6, 0.4) * Job_satisfaction + 0.5*average_well_being + 0.7 * residual
+  )
+sd(diary$OWB)
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+## Fit LM
+```{r}
+model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "slopes_differ2")
+
+diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
+```
+
+
+### Inspect correlations
+```{r}
+(cors <- diary %>% group_by(single_f, id) %>%
+  summarise(cor = psych::fisherz(cor(Job_satisfaction, OWB)),
+            slope = broom::tidy(lm(OWB ~ Job_satisfaction))[2, "estimate"][[1]],
+            residual = var(resid(lm(OWB ~ Job_satisfaction))),
+            var_prod = var(OWB),
+            mean_prod = mean(OWB),
+            max_est = max(estimate__),
+            max_js = max(Job_satisfaction),
+            mean_js = mean(Job_satisfaction),
+            var_js = var(Job_satisfaction)) %>% 
+  summarise(cor = psych::fisherz2r(mean(cor)),
+            slope = mean(slope),
+            sd_resid = sqrt(mean(residual)),
+            sd_prod = sqrt(mean(var_prod)),
+            mean_prod = mean(mean_prod),
+            max_js = max(max_js),
+            max_est = max(max_est),
+            mean_js = mean(mean_js),
+            sd_js = sqrt(mean(var_js)))
+)
+```
+
+### Scatter plot
+```{r}
+
+m1 <- ggplot(diary, aes(Job_satisfaction, OWB)) +
+  facet_wrap(~ single_f) +
+  geom_point(alpha = 0.03, color = "#6E9181") +
+
+  geom_smooth(aes(Job_satisfaction, estimate__, ymin = lower__, ymax = upper__), stat = 'identity', color = 'black') +
+  
+  geom_text(aes(max_js + 0.1, max_est + 0.3, label = sprintf('b==plain("%.2f")', slope)), data = cors, hjust = 0, parse = TRUE, size = 3) +
+  scale_color_viridis_d(guide = F, option = "B") +   
+  geom_point(alpha = 0.1, color = "#6E9181") +
+  
+  geom_text(aes(label = sprintf('italic("r")==plain("%.2f")', cor)), x= -3, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  
+  # geom_text(aes(max_js, y = mean_prod - 0.3, label = sprintf('sigma[y]==plain("%.2f")', sd_prod)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  # geom_segment(aes(x = max_js + 0.25, y = mean_prod - sd_prod/2, xend = max_js + 0.25, yend = mean_prod + sd_prod/2), data = cors, size = 1, color = "#219FD8") +
+
+  # geom_text(aes(max_js + 0.6, y = mean_prod - 0.5, label = sprintf('sigma[res(y)]==plain("%.2f")', sd_resid)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  # geom_segment(aes(x = max_js + 0.85, y = mean_prod - sd_resid/2, xend = max_js + 0.85, yend = mean_prod + sd_resid/2), data = cors, size = 1, color = "#219FD8") +
+
+  # geom_text(aes(label = sprintf('sigma[x]==plain("%.2f")', sd_js),  x= mean_js - 0.5, y = -2.8), data = cors, hjust = 0, parse = TRUE, size = 3) +
+  # geom_segment(aes(x = mean_js - sd_js/2, y = -3, xend = mean_js + sd_js/2, yend = -3), data = cors, size = 1, color = "#219FD8") +
+  
+  expand_limits(x = c(4.5), y = c(-3,4)) +
+  xlab("Job satisfaction") +
+  ylab("Overall well-being") +
+  ggthemes::theme_clean()
+m1
+```
+
+
+## Panel B: Residual variances, not slopes differ
+```{r}
+diary <- diary %>% 
+  mutate(
+    OWB = 0.4 * Job_satisfaction + 0.5*average_well_being + if_else(single == 1, 0, 0.8) * Relationship_satisfaction + 0.5 * residual
+  )
+
+sd(diary$OWB)
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+## Fit LM
+```{r}
+model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "corrs_differ_not_slopes2")
+
+diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
+```
+
+
+### Inspect correlations
+```{r}
+(cors <- diary %>% group_by(single_f, id) %>%
+  summarise(cor = psych::fisherz(cor(Job_satisfaction, OWB)),
+            slope = broom::tidy(lm(OWB ~ Job_satisfaction))[2, "estimate"][[1]],
+            residual = var(resid(lm(OWB ~ Job_satisfaction))),
+            var_prod = var(OWB),
+            mean_prod = mean(OWB),
+            max_est = max(estimate__),
+            max_js = max(Job_satisfaction),
+            mean_js = mean(Job_satisfaction),
+            var_js = var(Job_satisfaction)) %>% 
+  summarise(cor = psych::fisherz2r(mean(cor)),
+            slope = mean(slope),
+            sd_resid = sqrt(mean(residual)),
+            sd_prod = sqrt(mean(var_prod)),
+            mean_prod = mean(mean_prod),
+            max_js = max(max_js),
+            max_est = max(max_est),
+            mean_js = mean(mean_js),
+            sd_js = sqrt(mean(var_js)))
+)
+```
+
+### Scatter plot
+```{r}
+
+m2 <- ggplot(diary, aes(Job_satisfaction, OWB)) +
+  facet_wrap(~ single_f) +
+  geom_point(alpha = 0.03, color = "#6E9181") +
+  # geom_line(aes(color = factor(if_else(id > 25, id - 24.5, as.numeric(id)))), stat = "smooth", method = 'lm', alpha = 0.3) +
+  geom_smooth(aes(Job_satisfaction, estimate__, ymin = lower__, ymax = upper__), stat = 'identity', color = 'black') +
+  geom_text(aes(max_js + 0.1, max_est + 0.3, label = sprintf('b==plain("%.2f")', slope)), data = cors, hjust = 0, parse = TRUE, size = 3) +
+  scale_color_viridis_d(guide = F, option = "B") +   
+  geom_point(alpha = 0.1, color = "#6E9181") +
+  
+  geom_text(aes(label = sprintf('italic("r")==plain("%.2f")', cor)), x= -3, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  
+  # geom_text(aes(max_js, y = mean_prod - 0.3, label = sprintf('sigma[y]==plain("%.2f")', sd_prod)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  # geom_segment(aes(x = max_js + 0.25, y = mean_prod - sd_prod/2, xend = max_js + 0.25, yend = mean_prod + sd_prod/2), data = cors, size = 1, color = "#219FD8") +
+
+  # geom_text(aes(max_js + 0.6, y = mean_prod - 0.5, label = sprintf('sigma[res(y)]==plain("%.2f")', sd_resid)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  # geom_segment(aes(x = max_js + 0.85, y = mean_prod - sd_resid/2, xend = max_js + 0.85, yend = mean_prod + sd_resid/2), data = cors, size = 1, color = "#219FD8") +
+
+  # geom_text(aes(label = sprintf('sigma[x]==plain("%.2f")', sd_js),  x= mean_js - 0.5, y = -2.8), data = cors, hjust = 0, parse = TRUE, size = 3) +
+  # geom_segment(aes(x = mean_js - sd_js/2, y = -3, xend = mean_js + sd_js/2, yend = -3), data = cors, size = 1, color = "#219FD8") +
+  
+  expand_limits(x = c(4.5), y = c(-3,4)) +
+  xlab("Job satisfaction") +
+  ylab("Overall well-being") +
+  ggthemes::theme_clean()
+m2
+```
+
+
+
+```{r}
+diary <- diary %>% mutate(
+    Job_satisfaction_old = Job_satisfaction,
+)
+```
+
+## Panel C: Restricted variance in predictor
+```{r}
+diary <- diary %>% 
+  mutate(
+    Job_satisfaction = Job_satisfaction_old,
+    Job_satisfaction = if_else(single == 0, Job_satisfaction * 0.7, Job_satisfaction),
+    OWB = 0.6 * Job_satisfaction + 0.5*average_well_being + 0.7 * residual
+  )
+sd(diary$Job_satisfaction)
+sd(diary$OWB)
+round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
+```
+
+
+## Fit LM
+```{r}
+model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "lower_pred_var3")
+
+diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
+```
+
+
+### Inspect correlations
+```{r}
+(cors <- diary %>% group_by(single_f, id) %>%
+  summarise(cor = psych::fisherz(cor(Job_satisfaction, OWB)),
+            slope = broom::tidy(lm(OWB ~ Job_satisfaction))[2, "estimate"][[1]],
+            residual = var(resid(lm(OWB ~ Job_satisfaction))),
+            var_prod = var(OWB),
+            mean_prod = mean(OWB),
+            max_est = max(estimate__),
+            min_est = min(estimate__),
+            max_js = max(Job_satisfaction),
+            min_js = min(Job_satisfaction),
+            mean_js = mean(Job_satisfaction),
+            var_js = var(Job_satisfaction)) %>% 
+  summarise(cor = psych::fisherz2r(mean(cor)),
+            slope = mean(slope),
+            sd_resid = sqrt(mean(residual)),
+            sd_prod = sqrt(mean(var_prod)),
+            mean_prod = mean(mean_prod),
+            max_js = max(max_js),
+            min_js = min(min_js),
+            max_est = max(max_est),
+            min_est = min(min_est),
+            mean_js = mean(mean_js),
+            sd_js = sqrt(mean(var_js)))
+)
+```
+
+### Scatter plot
+```{r}
+
+m3 <- ggplot(diary, aes(Job_satisfaction, OWB)) +
+  facet_wrap(~ single_f) +
+  geom_point(alpha = 0.03, color = "#6E9181") +
+  # geom_line(aes(color = factor(if_else(id > 25, id - 24.5, as.numeric(id)))), stat = "smooth", method = 'lm', alpha = 0.3) +
+  geom_smooth(aes(Job_satisfaction, estimate__, ymin = lower__, ymax = upper__), stat = 'identity', color = 'black') +
+  geom_text(aes(max_js + 0.1, max_est + 0.3, label = sprintf('b==plain("%.2f")', slope)), data = cors, hjust = 0, parse = TRUE, size = 3) +
+  scale_color_viridis_d(guide = F, option = "B") +   
+  geom_point(alpha = 0.1, color = "#6E9181") +
+  
+  geom_text(aes(label = sprintf('italic("r")==plain("%.2f")', cor)), x= -3, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  
+  # geom_text(aes(max_js, y = mean_prod - 0.3, label = sprintf('sigma[y]==plain("%.2f")', sd_prod)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  # geom_segment(aes(x = max_js + 0.25, y = mean_prod - sd_prod/2, xend = max_js + 0.25, yend = mean_prod + sd_prod/2), data = cors, size = 1, color = "#219FD8") +
+
+  # geom_text(aes(max_js + 0.6, y = mean_prod - 0.5, label = sprintf('sigma[res(y)]==plain("%.2f")', sd_resid)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
+  # geom_segment(aes(x = max_js + 0.85, y = mean_prod - sd_resid/2, xend = max_js + 0.85, yend = mean_prod + sd_resid/2), data = cors, size = 1, color = "#219FD8") +
+
+  # geom_text(aes(label = sprintf('sigma[x]==plain("%.2f")', sd_js),  x= mean_js - 0.5, y = -2.8), data = cors, hjust = 0, parse = TRUE, size = 3) +
+  # geom_segment(aes(x = mean_js - sd_js/2, y = -3, xend = mean_js + sd_js/2, yend = -3), data = cors, size = 1, color = "#219FD8") +
+  
+  expand_limits(x = c(-3.7, 4.5), y = c(-3,4)) +
+  xlab("Job satisfaction") +
+  ylab("Overall well-being") +
+  ggthemes::theme_clean()
+m3
+```
+
+
+## Altogether
+```{r}
+library(cowplot)
+plot_grid(m1, m2, m3, ncol = 1, labels = "AUTO")
+ggsave("job_satisfaction_singles.pdf", width = 5, height = 7)
+ggsave("job_satisfaction_singles.png", width = 6, height = 7)
+```
+
