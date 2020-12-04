@@ -1,6 +1,7 @@
 # Ceiling Effect Simulation
 
 ## Generate data
+
 ```{r}
 set.seed(12345)
 library(tidyverse)
