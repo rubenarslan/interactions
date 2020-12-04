@@ -5,8 +5,6 @@ library(tidyverse)
 library(brms)
 ```
 
-
-
 ### Data-generating model
 ```{r}
 n <- 50
@@ -47,9 +45,9 @@ sd(diary$OWB)
 round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
 ```
 
-## Fit LM
+### Fit LM
 ```{r}
-model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "slopes_differ2")
+model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "models/slopes_differ")
 
 diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
 ```
@@ -122,9 +120,9 @@ sd(diary$OWB)
 round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, OWB)),2)
 ```
 
-## Fit LM
+### Fit LM
 ```{r}
-model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "corrs_differ_not_slopes2")
+model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "models/corrs_differ_not_slopes")
 
 diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
 ```
@@ -167,16 +165,6 @@ m2 <- ggplot(diary, aes(Job_satisfaction, OWB)) +
   geom_point(alpha = 0.1, color = "#6E9181") +
   
   geom_text(aes(label = sprintf('italic("r")==plain("%.2f")', cor)), x= -3, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
-  
-  # geom_text(aes(max_js, y = mean_prod - 0.3, label = sprintf('sigma[y]==plain("%.2f")', sd_prod)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
-  # geom_segment(aes(x = max_js + 0.25, y = mean_prod - sd_prod/2, xend = max_js + 0.25, yend = mean_prod + sd_prod/2), data = cors, size = 1, color = "#219FD8") +
-
-  # geom_text(aes(max_js + 0.6, y = mean_prod - 0.5, label = sprintf('sigma[res(y)]==plain("%.2f")', sd_resid)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
-  # geom_segment(aes(x = max_js + 0.85, y = mean_prod - sd_resid/2, xend = max_js + 0.85, yend = mean_prod + sd_resid/2), data = cors, size = 1, color = "#219FD8") +
-
-  # geom_text(aes(label = sprintf('sigma[x]==plain("%.2f")', sd_js),  x= mean_js - 0.5, y = -2.8), data = cors, hjust = 0, parse = TRUE, size = 3) +
-  # geom_segment(aes(x = mean_js - sd_js/2, y = -3, xend = mean_js + sd_js/2, yend = -3), data = cors, size = 1, color = "#219FD8") +
-  
   expand_limits(x = c(4.5), y = c(-3,4)) +
   xlab("Job satisfaction") +
   ylab("Overall well-being") +
@@ -206,9 +194,9 @@ round(cor(diary %>% select(single, Job_satisfaction, Relationship_satisfaction, 
 ```
 
 
-## Fit LM
+### Fit LM
 ```{r}
-model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "lower_pred_var3")
+model <- brm(OWB ~ Job_satisfaction*single_f + (1 + Job_satisfaction | id), data = diary, cores = 4, backend = "cmdstanr", file = "models/restricted_pred")
 
 diary[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
 ```
@@ -256,15 +244,6 @@ m3 <- ggplot(diary, aes(Job_satisfaction, OWB)) +
   
   geom_text(aes(label = sprintf('italic("r")==plain("%.2f")', cor)), x= -3, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
   
-  # geom_text(aes(max_js, y = mean_prod - 0.3, label = sprintf('sigma[y]==plain("%.2f")', sd_prod)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
-  # geom_segment(aes(x = max_js + 0.25, y = mean_prod - sd_prod/2, xend = max_js + 0.25, yend = mean_prod + sd_prod/2), data = cors, size = 1, color = "#219FD8") +
-
-  # geom_text(aes(max_js + 0.6, y = mean_prod - 0.5, label = sprintf('sigma[res(y)]==plain("%.2f")', sd_resid)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +
-  # geom_segment(aes(x = max_js + 0.85, y = mean_prod - sd_resid/2, xend = max_js + 0.85, yend = mean_prod + sd_resid/2), data = cors, size = 1, color = "#219FD8") +
-
-  # geom_text(aes(label = sprintf('sigma[x]==plain("%.2f")', sd_js),  x= mean_js - 0.5, y = -2.8), data = cors, hjust = 0, parse = TRUE, size = 3) +
-  # geom_segment(aes(x = mean_js - sd_js/2, y = -3, xend = mean_js + sd_js/2, yend = -3), data = cors, size = 1, color = "#219FD8") +
-  
   expand_limits(x = c(-3.7, 4.5), y = c(-3,4)) +
   xlab("Job satisfaction") +
   ylab("Overall well-being") +
@@ -277,7 +256,7 @@ m3
 ```{r}
 library(cowplot)
 plot_grid(m1, m2, m3, ncol = 1, labels = "AUTO")
-ggsave("job_satisfaction_singles.pdf", width = 5, height = 7)
-ggsave("job_satisfaction_singles.png", width = 6, height = 7)
+ggsave("plots/job_satisfaction_singles.pdf", width = 5, height = 7)
+ggsave("plots/job_satisfaction_singles.png", width = 6, height = 7)
 ```
 

@@ -30,7 +30,6 @@ p1 <- ggplot(data = ceiling, aes(x = pred, y = out, color = Moderator)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 p1
-ggsave("noceil.png", width = 3, height = 3)
 
 qplot(residuals(lm(out ~ pred*Moderator, ceiling)))
 qplot(ceiling$out)
@@ -50,7 +49,6 @@ p2 <- ggplot(data = ceiling, aes(x = pred, y = cens, color = Moderator)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 p2
-ggsave("ceil.png", width = 3, height = 3)
 
 reg <- lm(cens ~ pred*Moderator, ceiling)
 summary(reg)
@@ -75,7 +73,6 @@ p3 <- ggplot(data = ceiling, aes(x = pred, y = ordinal, color = Moderator)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 p3
-ggsave("ordinal.png", width = 3, height = 3)
 
 reg <- lm(ordinal ~ pred*Moderator, ceiling)
 summary(reg)

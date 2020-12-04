@@ -5,8 +5,6 @@ library(tidyverse)
 library(brms)
 ```
 
-
-
 ### Data-generating model
 ```{r}
 set.seed(201910052)
@@ -25,7 +23,7 @@ table(people$days_WFH)
 ```
 
 
-## Model 1: Variance in outcome increases with moderator, predictor variance is lower
+## Variance in outcome increases with moderator, predictor variance is lower
 ### DGM
 ```{r}
 people <- people %>% mutate(
@@ -37,9 +35,9 @@ ggplot(data = people) + geom_histogram(aes(Productivity, fill = parent), positio
 
 ### Fit LM
 ```{r}
-model <- brm(Productivity ~ parent * days_WFH, data = people, cores = 4, backend = "cmdstanr", file = "productivity_parents_mean2")
+model <- brm(Productivity ~ parent * days_WFH, data = people, cores = 4, backend = "cmdstanr", file = "models/productivity_parents_mean")
 model2 <- brm(bf(Productivity ~ parent * days_WFH, 
-                 sigma ~ parent), data = people, cores = 4, backend = "cmdstanr", file = "productivity_parents_mean_sigma2")
+                 sigma ~ parent), data = people, cores = 4, backend = "cmdstanr", file = "models/productivity_parents_mean_sigma")
 people[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model, re_formula = NA)
 ```
 
@@ -86,8 +84,8 @@ m6 <- ggplot(people, aes(days_WFH, Productivity)) +
   ggthemes::theme_clean()
 m6
 
-ggsave("parents_slope_vs_corr.pdf", width = 5.5, height = 4)
-ggsave("parents_slope_vs_corr.png", width = 4.5, height = 3)
+ggsave("plots/parents_slope_vs_corr.pdf", width = 5.5, height = 4)
+ggsave("plots/parents_slope_vs_corr.png", width = 4.5, height = 3)
 ```
 
 
