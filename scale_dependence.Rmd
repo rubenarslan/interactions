@@ -1,0 +1,241 @@
+# Scale Dependence
+
+## Generate data
+```{r}
+set.seed(12345)
+n <- 10000
+inoffice <- rbinom(n, size = 1, prob = .50)
+mentor <- rbinom(n, size = 1, prob = .10)
+
+# Probability of quitting
+latent_quit <- - 2.9 + inoffice*2.7 - mentor*1.2 + inoffice*mentor*0.7
+
+
+logit <- function(x) {
+  exp(x)/(1 + exp(x))
+}
+
+prob_quit <- logit(latent_quit)
+quit <- rbinom(n, size = 1, prob = prob_quit)
+  
+office <- data.frame(inoffice, mentor, quit)
+```
+
+
+## Model
+### in brms
+```{r}
+library(brms)
+whoquits <- brm(quit ~ mentor*inoffice, 
+               data = office, 
+               family = bernoulli,
+               chains = 4, file = "models/whoquits.rds")
+summary(whoquits)
+```
+
+### Frequentist analysis in base R for comparison
+```{r}
+summary(glm(quit ~ mentor*inoffice, 
+            data = office, 
+            family = binomial))
+```
+
+
+### Get the percentages directly from the coefficients
+```{r}
+not_inoffice_no_mentoring <- logit(fixef(whoquits)["Intercept", 1])
+not_inoffice_mentoring <- logit(fixef(whoquits)["Intercept", 1] + fixef(whoquits)["mentor", 1])
+
+not_inoffice_no_mentoring - not_inoffice_mentoring
+
+inoffice_no_mentoring <- logit(fixef(whoquits)["Intercept", 1] + fixef(whoquits)["inoffice", 1])
+inoffice_mentoring <- logit(fixef(whoquits)["Intercept", 1] + fixef(whoquits)["inoffice", 1]
+                      + fixef(whoquits)["mentor", 1] + fixef(whoquits)["mentor:inoffice", 1])
+inoffice_no_mentoring - inoffice_mentoring
+```
+
+### Get the percentages with credible intervals from the posterior
+```{r}
+# Helper function
+fix_var <- function(input, variable, value) {
+  # Function takes a dataframe, a variable name, and a specific value
+  # Returns the dataframe but with the given variable set to the
+  # specific value
+  input[, variable] <- value
+  return(input)
+}
+
+predictions <- function(data_no_mentoring, data_mentoring, modelfit) {
+  # Takes a list of two dataframes and a model
+  # Returns margins, average marginal effect, relative risk
+  library(brms)
+  
+  pred1 <- predict(modelfit, newdata = data_no_mentoring, summary = FALSE)
+  pred2 <- predict(modelfit, newdata = data_mentoring, summary = FALSE)
+  
+  # Margins
+  averages1 <- rowMeans(pred1)
+  averages2 <- rowMeans(pred2)
+  
+  nonmentors <- c(mean(averages1), quantile(averages1, probs = c(.50, .025, .975)))
+  mentors <- c(mean(averages2), quantile(averages2, probs = c(.50, .025, .975)))
+  margins <- rbind(nonmentors, mentors)
+  
+  # Average Effect
+  diff <- pred2 - pred1
+  average_diff <- rowMeans(diff)
+  ame <- c(mean(average_diff), quantile(average_diff, probs = c(.50, .025, .975)))
+  
+  # Relative risk
+  relative <- c(mean(rowMeans(pred2)/rowMeans(pred1)),
+                quantile(rowMeans(pred2)/rowMeans(pred1),
+                         probs = c(.5, .025, .975)))
+  
+  # Return all results
+  all_results <- list(margins, ame, relative)
+  names(all_results) <- c("Predictive margins", "Average marginal effect", "Relative risk")
+  return(all_results)
+  
+}
+
+comparison <- function(data_no_mentoring_1, data_mentoring_1, 
+                       data_no_mentoring_2, data_mentoring_2, modelfit) {
+  # Takes a list of four dataframes and a model
+  # Compare average marginal effects and relative risks 
+  # Difference is group2 - group1
+  
+  library(brms)
+  
+  pred1 <- predict(modelfit, newdata = data_no_mentoring_1, summary = FALSE)
+  pred2 <- predict(modelfit, newdata = data_mentoring_1, summary = FALSE)
+  pred3 <- predict(modelfit, newdata = data_no_mentoring_2, summary = FALSE)
+  pred4 <- predict(modelfit, newdata = data_mentoring_2, summary = FALSE)
+  
+  # Average Effect
+  diff1 <- pred2 - pred1 # mentor effect group 1
+  diff2 <- pred4 - pred3 # mentor effect group 2
+  
+  # Difference in the effects
+  diff3 <- diff2 - diff1
+  average_diff <- rowMeans(diff3)
+  
+  # Summarize
+  difference_prob <- c(mean(average_diff), quantile(average_diff, probs = c(.50, .025, .975)))
+  
+  
+  # Relative risk
+  relative1 <- rowMeans(pred2)/rowMeans(pred1)
+  relative2 <- rowMeans(pred4)/rowMeans(pred3)
+  
+  rel_diffs <- relative2 - relative1
+  
+  difference_rr <- c(mean(rel_diffs),
+                     quantile(rel_diffs,
+                              probs = c(.5, .025, .975)))
+  
+  # Return all results
+  all_results <- list(difference_prob, difference_rr)
+  names(all_results) <- c("Difference in AME", "Difference in RR")
+  return(all_results)
+  
+}
+
+# Not inoffice
+pred_no_inoffice <- predictions(fix_var(fix_var(office, "mentor", 0), "inoffice", 0),
+                              fix_var(fix_var(office, "mentor", 1), "inoffice", 0),
+                              whoquits)
+
+# inoffice
+pred_inoffice <- predictions(fix_var(fix_var(office, "mentor", 0), "inoffice", 1),
+                              fix_var(fix_var(office, "mentor", 1), "inoffice", 1),
+                              whoquits)
+
+# Comparison
+comp <- comparison(fix_var(fix_var(office, "mentor", 0), "inoffice", 0),
+                   fix_var(fix_var(office, "mentor", 1), "inoffice", 0),
+                   fix_var(fix_var(office, "mentor", 0), "inoffice", 1),
+                   fix_var(fix_var(office, "mentor", 1), "inoffice", 1),
+                   whoquits)
+```
+
+
+
+## Plot log function
+```{r}
+logit <- function(x) {
+  exp(x)/(1 + exp(x))
+}
+
+library(ggplot2)
+
+# Intercept
+intercept <- summary(whoquits)$fixed[1, "Estimate"]
+
+# mentor
+mentor <- summary(whoquits)$fixed[2, "Estimate"]
+
+# inoffice
+inoffice <- summary(whoquits)$fixed[3, "Estimate"]
+
+# Interaction
+interact <- summary(whoquits)$fixed[4, "Estimate"]
+
+theme_set(theme_bw())
+ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
+  xlim(-5, 5) +
+  stat_function(fun = logit) +
+  xlab("Logit") +
+  ylab("Probability of quitting") +
+  geom_point(aes(x = intercept, 
+                 y = logit(intercept)), color = "blue") +
+  geom_point(aes(x = intercept + mentor, 
+                 y = logit(intercept + mentor)), color = "blue") +
+  
+  # Horizontal
+  geom_segment(aes(x = intercept, 
+                   xend = intercept + mentor, 
+                   y = 0, 
+                   yend = 0), color = "blue", size = 2) +
+  geom_segment(aes(x = intercept, xend = intercept, 
+                   y = logit(intercept), yend = 0), linetype = "dashed", color = "grey") +
+  geom_segment(aes(x = intercept + mentor, xend = intercept + mentor, 
+                   y = logit(intercept + mentor), yend = 0), linetype = "dashed", color = "grey") +
+  
+  # Vertical
+  geom_segment(aes(x = -5, xend = -5, y = logit(intercept), 
+                   yend = logit(intercept + mentor)), color = "blue", size = 2) +
+  geom_segment(aes(x = -5, xend = intercept, 
+                   y = logit(intercept), yend = logit(intercept)), linetype = "dashed", color = "grey") +
+  geom_segment(aes(x = -5, xend = intercept + mentor, 
+                   y = logit(intercept + mentor), 
+                   yend = logit(intercept + mentor)), linetype = "dashed", color = "grey") +
+  
+  geom_point(aes(x = intercept + inoffice, 
+                 y = logit(intercept + inoffice)), color = "red") +
+  geom_point(aes(x = intercept + mentor + inoffice + interact, 
+                 y = logit(intercept + mentor + inoffice + interact)), color = "red") +
+  
+  # Horizontal
+  geom_segment(aes(x = intercept + inoffice, 
+                   xend = intercept + mentor + inoffice + interact, y = 0, yend = 0), color = "red", size = 2) +
+  geom_segment(aes(x = intercept + inoffice, xend = intercept + inoffice, 
+                   y = logit(intercept + inoffice), yend = 0), linetype = "dashed", color = "grey") +
+  geom_segment(aes(x = intercept + mentor + inoffice + interact, 
+                   xend = intercept + mentor + inoffice + interact, 
+                   y = logit(intercept + mentor + inoffice + interact), yend = 0), 
+               linetype = "dashed", color = "grey") +
+  
+  # Vertical
+  geom_segment(aes(x = -5, xend = -5, y = logit(intercept + inoffice), 
+                   yend = logit(intercept + mentor + inoffice + interact)), color = "red", size = 2) +
+  geom_segment(aes(x = -5, xend = intercept + inoffice, 
+                   y = logit(intercept + inoffice), yend = logit(intercept + inoffice)), linetype = "dashed", color = "grey") +
+  geom_segment(aes(x = -5, xend = intercept + mentor + inoffice + interact, 
+                   y = logit(intercept + mentor + inoffice + interact), 
+                   yend = logit(intercept + mentor + inoffice + interact)), linetype = "dashed", color = "grey") +
+  annotate("text", x = -4, y = 0.5, label = "On-site", color = "red") +
+  annotate("text", x = -4, y = 0.09, label = "Remote", color = "blue") +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+ggsave("plots/log_function.png", width = 4, height = 3)
+```

@@ -1,0 +1,34 @@
+# Causal Identification
+
+## Generate data
+```{r}
+set.seed(123456789)
+modi <- data.frame(matrix(NA, nrow = 1000, ncol = 4))
+names(modi) <- c("treat", "sex", "outcome", "neuro")
+modi$treat <- rbinom(1000, 1, .5)
+modi$sex <- rbinom(1000, 1, .5)
+modi$neuro <- rnorm(1000) + modi$sex
+
+modi$outcome <- rnorm(1000) + modi$treat*(2 + 2*modi$sex)
+```
+
+## Frequentist models
+```{r}
+summary(lm(outcome ~ treat*neuro, data = modi))
+summary(lm(outcome ~ treat*neuro + sex, data = modi))
+summary(lm(outcome ~ treat*neuro + treat*sex, data = modi))
+```
+
+
+## brms models
+```{r}
+library(brms)
+modif <- brm(outcome ~ treat*neuro, data = modi, file = "models/effect_modification")
+summary(modif)
+
+modif2 <- brm(outcome ~ treat*neuro + sex, data = modi, file = "models/effect_modification_sex_adj")
+summary(modif2)
+
+modif3 <- brm(outcome ~ treat*neuro + treat*sex, data = modi, file = "models/effect_modification_sex_int_adj")
+summary(modif3)
+```

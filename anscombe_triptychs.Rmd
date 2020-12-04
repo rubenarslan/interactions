@@ -1,15 +1,9 @@
----
-title: "Anscombe's triptychs"
-author: "Ruben Arslan"
-date: "22/10/2020"
-output: html_document
----
+# Anscombe's triptychs
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, error = TRUE)
 ```
-
-
+## Generate data
 We attach the tidyverse packages to simulate the data and the brms package.
 
 ```{r}
@@ -126,19 +120,31 @@ ggplot(cases$residual,
 options(digits = 2)
 options(pillar.sigfig = 3)
 
+```
 
+### Model fitting
+
+First, we fit simple linear models without account for the particulars of our measure.
+```{r}
 model <- list()
-model$assumed <- brm(Y ~ X*M_f, data = cases$assumed, cores = 4, backend = "cmdstanr", file = "assumed")
-model$floor <- brm(Y ~ X*M_f, data = cases$floor, cores = 4, backend = "cmdstanr", file = "floor")
-model$residual <- brm(Y ~ X*M_f, data = cases$residual, cores = 4, backend = "cmdstanr", file = "residual")
+model$assumed <- brm(Y ~ X*M_f, data = cases$assumed, cores = 4, backend = "cmdstanr", file = "models/assumed")
+model$floor <- brm(Y ~ X*M_f, data = cases$floor, cores = 4, backend = "cmdstanr", file = "models/floor")
+model$residual <- brm(Y ~ X*M_f, data = cases$residual, cores = 4, backend = "cmdstanr", file = "models/residual")
+```
 
+Second, we fit models that account for the floor effect and the heteroskedastic residual variance, respectively.
+```{r}
 fixed_model <- list()
-fixed_model$assumed <- brm(Y ~ X*M_f, data = cases$assumed, cores = 4, backend = "cmdstanr", file = "assumed")
-fixed_model$floor <- brm(Y | cens(censored) ~ X*M_f, data = cases$floor %>% mutate(censored = if_else(Y < -0.83, "left", "none")), cores = 4, backend = "cmdstanr", file = "fixed_floor")
-fixed_model$residual <- brm(bf(Y ~ X*M_f, sigma ~ M_f), data = cases$residual, cores = 4, backend = "cmdstanr", file = "fixed_residual")
+fixed_model$assumed <- brm(Y ~ X*M_f, data = cases$assumed, cores = 4, backend = "cmdstanr", file = "models/assumed")
+fixed_model$floor <- brm(Y | cens(censored) ~ X*M_f, data = cases$floor %>% mutate(censored = if_else(Y < -0.83, "left", "none")), cores = 4, backend = "cmdstanr", file = "models/fixed_floor")
+fixed_model$residual <- brm(bf(Y ~ X*M_f, sigma ~ M_f), data = cases$residual, cores = 4, backend = "cmdstanr", file = "models/fixed_residual")
+```
 
+
+We generate fitted effects for the improper models.
+
+```{r}
 library(bayesplot)
-
 library(cowplot)
 
 cases$assumed[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(model$assumed)
@@ -151,7 +157,10 @@ cases$residual[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(
 three_cases <- bind_rows(cases, .id = "case")
 three_cases %>% select(-M_f, -ends_with("__")) %>% group_by(case) %>% summarise_all(list(~mean(.), ~sd(.)))
 three_cases %>% group_by(case) %>% do(broom::tidy(lm(Y ~ X*M, .))) %>% select(case, term, estimate) %>% tidyr::pivot_wider(id_cols = case, names_from = term, values_from = estimate)
+```
 
+### Typical plot without raw data
+```{r}
 ggplot(three_cases, 
        aes(X, Y)) +
   # geom_point(aes(color = M), alpha = 0.1) +
@@ -159,10 +168,9 @@ ggplot(three_cases,
   scale_color_viridis_c(guide = F) +
   facet_grid(case ~ M_f) +
   theme_minimal()
-
 ```
 
-
+### Suggested plot with raw data
 ```{r}
 (cors <- three_cases %>% group_by(case, M_f) %>%
   do(broom::tidy(cor.test(.$X, .$Y))))
@@ -183,22 +191,21 @@ ggplot(three_cases,
   ggthemes::theme_clean() +
   coord_cartesian(ylim = c(-2.5,3.6))
 
-ggsave("anscombe_triptychs.pdf", width = 6, height = 6)
-ggsave("anscombe_triptychs.png", width = 6, height = 6)
+ggsave("plots/anscombe_triptychs.pdf", width = 6, height = 6)
+ggsave("plots/anscombe_triptychs.png", width = 6, height = 6)
 ```
 
 
 ## Posterior predictive checks
 ```{r}
-
 plot_grid(
   pp_check(model$assumed) + guides(color = F), # pp_check(model$assumed, type = "error_scatter_avg", alpha = 0.1),
   pp_check(model$floor) + theme(legend.position = c(1,0.9), legend.justification = "right"), # pp_check(model$floor, type = "error_scatter_avg", alpha = 0.1), 
   pp_check(model$residual) + guides(color = F),
 #  pp_check(model$residual, type = "error_scatter_avg", alpha = 0.1),
   nrow = 1, labels = "AUTO", label_size = 6, axis = "lb", align = "hv")
-ggsave("three_dgms_ppc.pdf", width = 5, height = 2)
-ggsave("three_dgms_ppc.png", width = 5, height = 2)
+ggsave("plots/three_dgms_ppc.pdf", width = 5, height = 2)
+ggsave("plots/three_dgms_ppc.png", width = 5, height = 2)
 
 plot_grid(
   pp_check(fixed_model$assumed) + guides(color = F), #pp_check(fixed_model$assumed, type = "error_scatter_avg", alpha = 0.1),
@@ -206,9 +213,42 @@ plot_grid(
   pp_check(fixed_model$residual) + guides(color = F),
  # pp_check(fixed_model$residual, type = "error_scatter_avg", alpha = 0.1),
   nrow = 1, labels = "AUTO", label_size = 6, axis = "lb", align = "hv")
-ggsave("fixed3_dgms_ppc.pdf", width = 5, height = 2)
-ggsave("fixed3_dgms_ppc.png", width = 5, height = 2)
-
+ggsave("plots/fixed3_dgms_ppc.pdf", width = 5, height = 2)
+ggsave("plots/fixed3_dgms_ppc.png", width = 5, height = 2)
 ```
 
 
+
+### Triptychs with proper models
+```{r}
+
+cases$assumed[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(fixed_model$assumed)
+
+cases$floor[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(fixed_model$floor)
+
+cases$residual[,c("estimate__", "std.error__", "lower__", "upper__")] <- fitted(fixed_model$residual)
+
+
+three_cases <- bind_rows(cases, .id = "case")
+three_cases %>% select(-M_f, -ends_with("__")) %>% group_by(case) %>% summarise_all(list(~mean(.), ~sd(.)))
+three_cases %>% group_by(case) %>% do(broom::tidy(lm(Y ~ X*M, .))) %>% select(case, term, estimate) %>% tidyr::pivot_wider(id_cols = case, names_from = term, values_from = estimate)
+
+(cors <- three_cases %>% group_by(case, M_f) %>%
+  do(broom::tidy(cor.test(.$X, .$Y))))
+ggplot(three_cases, 
+       aes(X, Y)) +
+  geom_point(aes(color = M), alpha = 0.1) +
+  geom_smooth(aes(X, estimate__, ymin = lower__, ymax = upper__), 
+              color = "black", stat = 'identity') +
+  scale_color_viridis_c(guide = F, begin = 0.2, end = 0.8) +
+  facet_grid(case ~ M_f, labeller = labeller(
+    case = c("assumed" = '"ideal" case', 
+             "floor" = "floor effect,\nno latent interaction",
+             "residual" = "smaller correlation\nat largest slope"),
+    M_f = c("low" = "Moderator: low",
+            "medium" = "Moderator: medium",
+            "high" = "Moderator: high"))) +
+  geom_text(aes(label = sprintf('italic("r")==%.2f', estimate, conf.low, conf.high)), x= -2.5, y=2.5, data = cors, hjust = 0, parse = TRUE, size = 3) +
+  ggthemes::theme_clean() +
+  coord_cartesian(ylim = c(-2.5,3.6))
+```

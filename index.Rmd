@@ -1,0 +1,30 @@
+---
+pagetitle: "Precise answers to vague questions: Issues with interactions"
+---
+
+# Precise answers to vague questions: Issues with interactions
+
+Here, we have documented the motivating examples with simulated data in our manuscript, together with brms example code. Use the menu to access the different parts.
+
+### Reproducibility
+This repository uses the [renv](https://rstudio.github.io/renv/) package to make it easier to rerun analyses using the same setup and package versions that were used to create them.
+
+<details><summary>Here's a classical session info.</summary>
+
+```{r}
+library(tidyverse)
+library(brms)
+library(bayesplot)
+library(cowplot)
+library(renv)
+sessionInfo()
+```
+
+</details>
+
+<details><summary>Here's our renv lockfile.</summary>
+
+```{r}
+cat(readLines("renv.lock"), sep = "\n")
+```
+</details>

@@ -21,8 +21,6 @@ people <- tibble(
 
 table(round(people$sleep))
 xtabs(~ parent + days_WFH, people)
-sd(diary$Job_satisfaction)
-sd(diary$residual)
 table(people$days_WFH)
 ```
 

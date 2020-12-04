@@ -1,0 +1,46 @@
+name: interactions
+output_dir: docs
+navbar:
+  title: Issues with Interactions
+  left:
+  - text: Scale dependence
+    href: scale_dependence.html
+  - text: Slope vs. correlations
+    href: slopes_vs_correlations.html
+  - text: Causal identification
+    href: causal_identification.html
+  - text: Boxes
+    menu:
+    - text: "Box 1: Ceiling and floor effects"
+      href: box_1_ceiling_effect.html
+    - text: "Box 2: Same correlation does not imply same slope"
+      href: box_2_same_correlation_different_slope.html
+  right:
+  - text: ''
+    icon: fa-github
+    href: https://github.com/rubenarslan/interactions
+output:
+  html_document:
+    theme: paper
+    toc: yes
+    toc_float: yes
+    code_folding: show
+    df_print: tibble
+    code_download: yes
+    highlight: zenburn
+    self_contained: no
+exclude:
+- packrat
+- '*.rda'
+- '*.pdf'
+- '*.dta'
+- '*.csv'
+- geo
+- item_tables
+- '*.csl'
+- '*.bibtex'
+- '*.xlsx'
+- data
+- "renv"
+- '*.rds'
+
