@@ -5,7 +5,7 @@ navbar:
   left:
   - text: Scale dependence
     href: scale_dependence.html
-  - text: Slope vs. correlations
+  - text: Slopes vs. correlations
     href: slopes_vs_correlations.html
   - text: Causal identification
     href: causal_identification.html
