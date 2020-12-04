@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>box_1_ceiling_effect.utf8</title>
+
+<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  { color: #cccccc; background-color: #303030; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ffcfaf; } /* Alert */
+code span.an { color: #7f9f7f; font-weight: bold; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bn { color: #dca3a3; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #f0dfaf; } /* ControlFlow */
+code span.ch { color: #dca3a3; } /* Char */
+code span.cn { color: #dca3a3; font-weight: bold; } /* Constant */
+code span.co { color: #7f9f7f; } /* Comment */
+code span.cv { color: #7f9f7f; font-weight: bold; } /* CommentVar */
+code span.do { color: #7f9f7f; } /* Documentation */
+code span.dt { color: #dfdfbf; } /* DataType */
+code span.dv { color: #dcdccc; } /* DecVal */
+code span.er { color: #c3bf9f; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #c0bed1; } /* Float */
+code span.fu { color: #efef8f; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #7f9f7f; font-weight: bold; } /* Information */
+code span.kw { color: #f0dfaf; } /* Keyword */
+code span.op { color: #f0efd0; } /* Operator */
+code span.ot { color: #efef8f; } /* Other */
+code span.pp { color: #ffcfaf; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #dca3a3; } /* SpecialChar */
+code span.ss { color: #cc9393; } /* SpecialString */
+code span.st { color: #cc9393; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #cc9393; } /* VerbatimString */
+code span.wa { color: #7f9f7f; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 64px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h2 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h3 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h4 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h5 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h6 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Issues with Interactions</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="scale_dependence.html">Scale dependence</a>
+</li>
+<li>
+  <a href="slopes_vs_correlations.html">Slopes vs. correlations</a>
+</li>
+<li>
+  <a href="causal_identification.html">Causal identification</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Boxes
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="box_1_ceiling_effect.html">Box 1: Ceiling and floor effects</a>
+    </li>
+    <li>
+      <a href="box_2_same_correlation_different_slope.html">Box 2: Same correlation does not imply same slope</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/rubenarslan/interactions">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<div id="ceiling-effect-simulation" class="section level1">
+<h1>Ceiling Effect Simulation</h1>
+<div id="generate-data" class="section level2">
+<h2>Generate data</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12345</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>ceiling <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Moderator =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>, n<span class="sc">/</span><span class="dv">5</span><span class="sc">*</span><span class="dv">4</span>), <span class="fu">rep</span>(<span class="dv">1</span>, n<span class="sc">/</span><span class="dv">5</span>)),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred =</span> <span class="fl">1.4</span> <span class="sc">*</span> Moderator <span class="sc">+</span> <span class="fl">0.7</span> <span class="sc">*</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">out =</span> <span class="fl">1.1</span> <span class="sc">*</span> Moderator <span class="sc">+</span> <span class="fl">0.6</span> <span class="sc">*</span> pred <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Moderator =</span> <span class="fu">as.factor</span>(Moderator)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(ceiling<span class="sc">$</span>out)</span></code></pre></div>
+<pre><code>## [1] 0.9513978</code></pre>
+</div>
+<div id="plot-latent-variable" class="section level2">
+<h2>Plot latent variable</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(ggthemes<span class="sc">::</span><span class="fu">theme_clean</span>())</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> ceiling, <span class="fu">aes</span>(<span class="at">x =</span> pred, <span class="at">y =</span> out, <span class="at">color =</span> Moderator)) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">formula =</span> y<span class="sc">~</span>x) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="fu">min</span>(ceiling<span class="sc">$</span>out), <span class="fu">max</span>(ceiling<span class="sc">$</span>out))) <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Predictor&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Outcome&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">guide =</span> F, <span class="at">begin =</span> <span class="fl">0.3</span>, <span class="at">end =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">axis.line =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">&quot;black&quot;</span>))</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>p1</span></code></pre></div>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(<span class="fu">residuals</span>(<span class="fu">lm</span>(out <span class="sc">~</span> pred<span class="sc">*</span>Moderator, ceiling)))</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(ceiling<span class="sc">$</span>out)</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-2-3.png" width="672" /></p>
+</div>
+<div id="plot-censored-variable" class="section level2">
+<h2>Plot censored variable</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>cens <span class="ot">&lt;-</span> ceiling<span class="sc">$</span>out</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>cens[ceiling<span class="sc">$</span>cens <span class="sc">&gt;</span> <span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> ceiling, <span class="fu">aes</span>(<span class="at">x =</span> pred, <span class="at">y =</span> cens, <span class="at">color =</span> Moderator)) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">formula =</span> y<span class="sc">~</span>x) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="fu">min</span>(ceiling<span class="sc">$</span>out), <span class="fu">max</span>(ceiling<span class="sc">$</span>out))) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Predictor&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Outcome with ceiling&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">begin =</span> <span class="fl">0.3</span>, <span class="at">end =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">axis.line =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">&quot;black&quot;</span>))</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>p2</span></code></pre></div>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">lm</span>(cens <span class="sc">~</span> pred<span class="sc">*</span>Moderator, ceiling)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = cens ~ pred * Moderator, data = ceiling)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.42017 -0.29491  0.02019  0.30706  1.63562 
+## 
+## Coefficients:
+##                 Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      0.02885    0.02398   1.203  0.22956    
+## pred             0.60212    0.03365  17.894  &lt; 2e-16 ***
+## Moderator1       1.17447    0.11827   9.930  &lt; 2e-16 ***
+## pred:Moderator1 -0.25018    0.08423  -2.970  0.00312 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.4766 on 496 degrees of freedom
+## Multiple R-squared:  0.716,  Adjusted R-squared:  0.7143 
+## F-statistic: 416.9 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(<span class="fu">residuals</span>(reg))</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(ceiling<span class="sc">$</span>cens)</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
+</div>
+<div id="plot-ordinal-variable" class="section level2">
+<h2>Plot ordinal variable</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>ordinal <span class="ot">&lt;-</span> ceiling<span class="sc">$</span>out</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>ordinal[ceiling<span class="sc">$</span>ordinal <span class="sc">&gt;</span> <span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>ordinal[ceiling<span class="sc">$</span>ordinal <span class="sc">&lt;</span> <span class="sc">-</span><span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">2</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>ordinal <span class="ot">&lt;-</span> <span class="fu">round</span>(ceiling<span class="sc">$</span>ordinal)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> ceiling, <span class="fu">aes</span>(<span class="at">x =</span> pred, <span class="at">y =</span> ordinal, <span class="at">color =</span> Moderator)) <span class="sc">+</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">formula =</span> y<span class="sc">~</span>x) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="fu">min</span>(ceiling<span class="sc">$</span>out), <span class="fu">max</span>(ceiling<span class="sc">$</span>out))) <span class="sc">+</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">guide =</span> F, <span class="at">begin =</span> <span class="fl">0.3</span>, <span class="at">end =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Predictor&quot;</span>) <span class="sc">+</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Outcome measured on Likert scale&quot;</span>) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(), <span class="at">axis.line =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">&quot;black&quot;</span>))</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>p3</span></code></pre></div>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">lm</span>(ordinal <span class="sc">~</span> pred<span class="sc">*</span>Moderator, ceiling)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(reg)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = ordinal ~ pred * Moderator, data = ceiling)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.64816 -0.33252  0.04059  0.33757  1.72114 
+## 
+## Coefficients:
+##                 Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      0.01497    0.02827   0.529  0.59675    
+## pred             0.62222    0.03966  15.688  &lt; 2e-16 ***
+## Moderator1       1.31889    0.13941   9.461  &lt; 2e-16 ***
+## pred:Moderator1 -0.32511    0.09929  -3.275  0.00113 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5618 on 496 degrees of freedom
+## Multiple R-squared:  0.6612, Adjusted R-squared:  0.6592 
+## F-statistic: 322.7 on 3 and 496 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(<span class="fu">residuals</span>(reg))</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(ceiling<span class="sc">$</span>ordinal)</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+</div>
+<div id="multi-plot" class="section level2">
+<h2>Multi-plot</h2>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cowplot)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(p1, p2 <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>), <span class="at">legend.background =</span> <span class="fu">element_blank</span>(), <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.5</span>,<span class="fl">0.85</span>), <span class="at">legend.justification =</span> <span class="st">&quot;right&quot;</span>), p3, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>), <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">align =</span> <span class="st">&quot;hv&quot;</span>, <span class="at">axis =</span> <span class="st">&quot;lb&quot;</span>)</span></code></pre></div>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;plots/ceiling_multiplot.png&quot;</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">3</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;plots/ceiling_multiplot.pdf&quot;</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">3</span>)</span></code></pre></div>
+</div>
+<div id="fit-models-with-improper-measurement-modelsdistributional-assumptions" class="section level2">
+<h2>Fit models with improper measurement models/distributional assumptions</h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># original data: no interaction</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm</span>(out <span class="sc">~</span> pred<span class="sc">*</span>Moderator, <span class="at">data =</span> ceiling,  <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/ceiling/original_no_interaction&quot;</span>))</span></code></pre></div>
+<pre><code>##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: out ~ pred * Moderator 
+##    Data: ceiling (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept           0.03      0.03    -0.02     0.08 1.00     4133     3052
+## pred                0.61      0.04     0.54     0.68 1.00     3286     1839
+## Moderator1          1.11      0.13     0.85     1.36 1.00     2826     2508
+## pred:Moderator1    -0.11      0.09    -0.29     0.07 1.00     2741     2379
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.50      0.02     0.47     0.54 1.00     3706     2518
+## 
+## Samples were drawn using sample(hmc). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with ceiling effect: interaction</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(uncensored <span class="ot">&lt;-</span><span class="fu">brm</span>(cens <span class="sc">~</span> pred<span class="sc">*</span>Moderator, <span class="at">data =</span> ceiling,  <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/ceiling/ceiling_effect&quot;</span>))</span></code></pre></div>
+<pre><code>##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: cens ~ pred * Moderator 
+##    Data: ceiling (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept           0.03      0.02    -0.02     0.08 1.00     3999     2960
+## pred                0.60      0.03     0.53     0.67 1.00     3813     2612
+## Moderator1          1.18      0.12     0.94     1.41 1.00     2967     2857
+## pred:Moderator1    -0.25      0.08    -0.41    -0.09 1.00     2788     2793
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.48      0.02     0.45     0.51 1.00     3732     2176
+## 
+## Samples were drawn using sample(hmc). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># with ordinal variable: interaction</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">brm</span>(ordinal <span class="sc">~</span> pred<span class="sc">*</span>Moderator, <span class="at">data =</span> ceiling, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/ceiling/ordinal_as_gaussian&quot;</span>))</span></code></pre></div>
+<pre><code>##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: ordinal ~ pred * Moderator 
+##    Data: ceiling (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept           0.01      0.03    -0.04     0.07 1.00     4424     3242
+## pred                0.62      0.04     0.54     0.70 1.00     3678     2805
+## Moderator1          1.32      0.14     1.05     1.59 1.00     2583     2655
+## pred:Moderator1    -0.33      0.10    -0.52    -0.14 1.00     2664     2591
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.56      0.02     0.53     0.60 1.00     4162     2844
+## 
+## Samples were drawn using sample(hmc). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(ceiling<span class="sc">$</span>ordinal)</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(ceiling<span class="sc">$</span>cens)</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_1_ceiling_effect_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+</div>
+<div id="fit-proper-models" class="section level2">
+<h2>Fit proper models</h2>
+<p>Now let’s set up a better model in brms. First we set a variable that tells us which values are censored and in what way</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>censored <span class="ot">&lt;-</span> <span class="st">&quot;none&quot;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>censored[ceiling<span class="sc">$</span>cens <span class="sc">&gt;=</span> <span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="st">&quot;right&quot;</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(ceiling<span class="sc">$</span>censored)</span></code></pre></div>
+<pre><code>## 
+##  none right 
+##   463    37</code></pre>
+<p>Run model</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>censored <span class="ot">&lt;-</span> <span class="fu">brm</span>(cens <span class="sc">|</span> <span class="fu">cens</span>(censored) <span class="sc">~</span> pred <span class="sc">*</span> Moderator, <span class="at">data =</span> ceiling,  <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/ceiling/censored&quot;</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(censored)</span></code></pre></div>
+<pre><code>##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: cens | cens(censored) ~ pred * Moderator 
+##    Data: ceiling (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept           0.03      0.03    -0.02     0.08 1.00     3934     3039
+## pred                0.60      0.04     0.53     0.67 1.00     3360     2572
+## Moderator1          1.04      0.13     0.79     1.29 1.00     2357     2392
+## pred:Moderator1    -0.04      0.10    -0.23     0.15 1.00     2377     2377
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma     0.50      0.02     0.47     0.54 1.00     3815     2611
+## 
+## Samples were drawn using sample(hmc). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">loo</span>(uncensored, censored)</span></code></pre></div>
+<pre><code>## Warning: Not all models have the same y variable. (&#39;yhash&#39; attributes do not
+## match)</code></pre>
+<pre><code>## Output of model &#39;uncensored&#39;:
+## 
+## Computed from 4000 by 500 log-likelihood matrix
+## 
+##          Estimate   SE
+## elpd_loo   -341.7 16.8
+## p_loo         4.4  0.4
+## looic       683.4 33.7
+## ------
+## Monte Carlo SE of elpd_loo is 0.0.
+## 
+## All Pareto k estimates are good (k &lt; 0.5).
+## See help(&#39;pareto-k-diagnostic&#39;) for details.
+## 
+## Output of model &#39;censored&#39;:
+## 
+## Computed from 4000 by 500 log-likelihood matrix
+## 
+##          Estimate   SE
+## elpd_loo   -364.2 15.7
+## p_loo         4.6  0.4
+## looic       728.4 31.4
+## ------
+## Monte Carlo SE of elpd_loo is 0.0.
+## 
+## All Pareto k estimates are good (k &lt; 0.5).
+## See help(&#39;pareto-k-diagnostic&#39;) for details.
+## 
+## Model comparisons:
+##            elpd_diff se_diff
+## uncensored   0.0       0.0  
+## censored   -22.5       4.2</code></pre>
+<p>Now we treat the ordinal variable as ordinal instead of Gaussian. We’re assuming a cumulative distribution with equidistant thresholds (because that’s what we simulated).</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>ceiling<span class="sc">$</span>ordinal <span class="ot">&lt;-</span> <span class="fu">factor</span>(ceiling<span class="sc">$</span>ordinal, <span class="at">ordered =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>ordinal <span class="ot">&lt;-</span> <span class="fu">brm</span>(ordinal <span class="sc">~</span> pred<span class="sc">*</span>Moderator, <span class="at">data =</span> ceiling, <span class="at">family =</span> <span class="fu">cumulative</span>(),  <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/ceiling/cumulative&quot;</span>)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ordinal)</span></code></pre></div>
+<pre><code>##  Family: cumulative 
+##   Links: mu = logit; disc = identity 
+## Formula: ordinal ~ pred * Moderator 
+##    Data: ceiling (Number of observations: 500) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept[1]       -5.80      0.61    -7.12    -4.74 1.00     2102     2225
+## Intercept[2]       -1.67      0.15    -1.97    -1.38 1.00     3670     3480
+## Intercept[3]        1.58      0.15     1.30     1.87 1.00     3087     3165
+## Intercept[4]        5.42      0.42     4.65     6.29 1.00     3004     2369
+## pred                2.15      0.18     1.80     2.53 1.00     2690     2644
+## Moderator1          4.39      0.68     3.11     5.77 1.00     2241     2629
+## pred:Moderator1    -0.41      0.49    -1.37     0.60 1.00     2365     2775
+## 
+## Family Specific Parameters: 
+##      Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## disc     1.00      0.00     1.00     1.00 1.00     4000     4000
+## 
+## Samples were drawn using sample(hmc). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+</div>
+</div>
+
+<div id="rmd-source-code">IyBDZWlsaW5nIEVmZmVjdCBTaW11bGF0aW9uCgojIyBHZW5lcmF0ZSBkYXRhCgpgYGB7cn0Kc2V0LnNlZWQoMTIzNDUpCmxpYnJhcnkodGlkeXZlcnNlKQpuIDwtIDUwMApjZWlsaW5nIDwtIHRpYmJsZSgKICBNb2RlcmF0b3IgPSBjKHJlcCgwLCBuLzUqNCksIHJlcCgxLCBuLzUpKSwKICBwcmVkID0gMS40ICogTW9kZXJhdG9yICsgMC43ICogcm5vcm0obiksCiAgb3V0ID0gMS4xICogTW9kZXJhdG9yICsgMC42ICogcHJlZCArIDAuNSAqIHJub3JtKG4pCikgJT4lIAogIG11dGF0ZSgKICBNb2RlcmF0b3IgPSBhcy5mYWN0b3IoTW9kZXJhdG9yKQogICkKc2QoY2VpbGluZyRvdXQpCmBgYAoKIyMgUGxvdCBsYXRlbnQgdmFyaWFibGUKYGBge3J9CmxpYnJhcnkoZ2dwbG90MikKdGhlbWVfc2V0KGdndGhlbWVzOjp0aGVtZV9jbGVhbigpKQpwMSA8LSBnZ3Bsb3QoZGF0YSA9IGNlaWxpbmcsIGFlcyh4ID0gcHJlZCwgeSA9IG91dCwgY29sb3IgPSBNb2RlcmF0b3IpKSArCiAgZ2VvbV9wb2ludChhbHBoYSA9IC4zKSArCiAgZ2VvbV9zbW9vdGgobWV0aG9kID0gImxtIiwgZm9ybXVsYSA9IHl+eCkgKwogIGNvb3JkX2NhcnRlc2lhbih5bGltID0gYyhtaW4oY2VpbGluZyRvdXQpLCBtYXgoY2VpbGluZyRvdXQpKSkgKwogIHhsYWIoIlByZWRpY3RvciIpICsKICB5bGFiKCJPdXRjb21lIikgKwogIHNjYWxlX2NvbG9yX3ZpcmlkaXNfZChndWlkZSA9IEYsIGJlZ2luID0gMC4zLCBlbmQgPSAwLjgpICsKICB0aGVtZShwYW5lbC5ib3JkZXIgPSBlbGVtZW50X2JsYW5rKCksIHBhbmVsLmdyaWQubWFqb3IgPSBlbGVtZW50X2JsYW5rKCksCiAgICAgICAgcGFuZWwuZ3JpZC5taW5vciA9IGVsZW1lbnRfYmxhbmsoKSwgYXhpcy5saW5lID0gZWxlbWVudF9saW5lKGNvbG91ciA9ICJibGFjayIpKQpwMQoKcXBsb3QocmVzaWR1YWxzKGxtKG91dCB+IHByZWQqTW9kZXJhdG9yLCBjZWlsaW5nKSkpCnFwbG90KGNlaWxpbmckb3V0KQpgYGAKCiMjIFBsb3QgY2Vuc29yZWQgdmFyaWFibGUKYGBge3J9CmNlaWxpbmckY2VucyA8LSBjZWlsaW5nJG91dApjZWlsaW5nJGNlbnNbY2VpbGluZyRjZW5zID4gMl0gPC0gMgpwMiA8LSBnZ3Bsb3QoZGF0YSA9IGNlaWxpbmcsIGFlcyh4ID0gcHJlZCwgeSA9IGNlbnMsIGNvbG9yID0gTW9kZXJhdG9yKSkgKwogIGdlb21fcG9pbnQoYWxwaGEgPSAuMykgKwogIGdlb21fc21vb3RoKG1ldGhvZCA9ICJsbSIsIGZvcm11bGEgPSB5fngpICsKICBjb29yZF9jYXJ0ZXNpYW4oeWxpbSA9IGMobWluKGNlaWxpbmckb3V0KSwgbWF4KGNlaWxpbmckb3V0KSkpICsKICB4bGFiKCJQcmVkaWN0b3IiKSArCiAgeWxhYigiT3V0Y29tZSB3aXRoIGNlaWxpbmciKSArCiAgc2NhbGVfY29sb3JfdmlyaWRpc19kKGJlZ2luID0gMC4zLCBlbmQgPSAwLjgpICsKICB0aGVtZShwYW5lbC5ib3JkZXIgPSBlbGVtZW50X2JsYW5rKCksIHBhbmVsLmdyaWQubWFqb3IgPSBlbGVtZW50X2JsYW5rKCksCiAgICAgICAgcGFuZWwuZ3JpZC5taW5vciA9IGVsZW1lbnRfYmxhbmsoKSwgYXhpcy5saW5lID0gZWxlbWVudF9saW5lKGNvbG91ciA9ICJibGFjayIpKQpwMgoKcmVnIDwtIGxtKGNlbnMgfiBwcmVkKk1vZGVyYXRvciwgY2VpbGluZykKc3VtbWFyeShyZWcpCnFwbG90KHJlc2lkdWFscyhyZWcpKQpxcGxvdChjZWlsaW5nJGNlbnMpCgpgYGAKCiMjIFBsb3Qgb3JkaW5hbCB2YXJpYWJsZQpgYGB7cn0KY2VpbGluZyRvcmRpbmFsIDwtIGNlaWxpbmckb3V0CmNlaWxpbmckb3JkaW5hbFtjZWlsaW5nJG9yZGluYWwgPiAyXSA8LSAyCmNlaWxpbmckb3JkaW5hbFtjZWlsaW5nJG9yZGluYWwgPCAtMl0gPC0gLTIKY2VpbGluZyRvcmRpbmFsIDwtIHJvdW5kKGNlaWxpbmckb3JkaW5hbCkKcDMgPC0gZ2dwbG90KGRhdGEgPSBjZWlsaW5nLCBhZXMoeCA9IHByZWQsIHkgPSBvcmRpbmFsLCBjb2xvciA9IE1vZGVyYXRvcikpICsKICBnZW9tX3BvaW50KGFscGhhID0gLjMpICsKICBnZW9tX3Ntb290aChtZXRob2QgPSAibG0iLCBmb3JtdWxhID0geX54KSArCiAgY29vcmRfY2FydGVzaWFuKHlsaW0gPSBjKG1pbihjZWlsaW5nJG91dCksIG1heChjZWlsaW5nJG91dCkpKSArCiAgc2NhbGVfY29sb3JfdmlyaWRpc19kKGd1aWRlID0gRiwgYmVnaW4gPSAwLjMsIGVuZCA9IDAuOCkgKwogIHhsYWIoIlByZWRpY3RvciIpICsKICB5bGFiKCJPdXRjb21lIG1lYXN1cmVkIG9uIExpa2VydCBzY2FsZSIpICsKICB0aGVtZShwYW5lbC5ib3JkZXIgPSBlbGVtZW50X2JsYW5rKCksIHBhbmVsLmdyaWQubWFqb3IgPSBlbGVtZW50X2JsYW5rKCksCiAgICAgICAgcGFuZWwuZ3JpZC5taW5vciA9IGVsZW1lbnRfYmxhbmsoKSwgYXhpcy5saW5lID0gZWxlbWVudF9saW5lKGNvbG91ciA9ICJibGFjayIpKQpwMwoKcmVnIDwtIGxtKG9yZGluYWwgfiBwcmVkKk1vZGVyYXRvciwgY2VpbGluZykKc3VtbWFyeShyZWcpCnFwbG90KHJlc2lkdWFscyhyZWcpKQpxcGxvdChjZWlsaW5nJG9yZGluYWwpCmBgYAoKCiMjIE11bHRpLXBsb3QKYGBge3J9CmxpYnJhcnkoY293cGxvdCkKcGxvdF9ncmlkKHAxLCBwMiArIHRoZW1lKGxlZ2VuZC50aXRsZSA9IGVsZW1lbnRfdGV4dChzaXplID0gOSksIGxlZ2VuZC5iYWNrZ3JvdW5kID0gZWxlbWVudF9ibGFuaygpLCBsZWdlbmQucG9zaXRpb24gPSBjKDAuNSwwLjg1KSwgbGVnZW5kLmp1c3RpZmljYXRpb24gPSAicmlnaHQiKSwgcDMsIGxhYmVscyA9IGMoIkEiLCAiQiIsICJDIiksIG5yb3cgPSAxLCBhbGlnbiA9ICJodiIsIGF4aXMgPSAibGIiKQpnZ3NhdmUoInBsb3RzL2NlaWxpbmdfbXVsdGlwbG90LnBuZyIsIHdpZHRoID0gNywgaGVpZ2h0ID0gMykKZ2dzYXZlKCJwbG90cy9jZWlsaW5nX211bHRpcGxvdC5wZGYiLCB3aWR0aCA9IDcsIGhlaWdodCA9IDMpCmBgYAoKIyMgRml0IG1vZGVscyB3aXRoIGltcHJvcGVyIG1lYXN1cmVtZW50IG1vZGVscy9kaXN0cmlidXRpb25hbCBhc3N1bXB0aW9ucwpgYGB7cn0KbGlicmFyeShicm1zKQoKIyBvcmlnaW5hbCBkYXRhOiBubyBpbnRlcmFjdGlvbgpzdW1tYXJ5KGJybShvdXQgfiBwcmVkKk1vZGVyYXRvciwgZGF0YSA9IGNlaWxpbmcsICBjb3JlcyA9IDQsIGJhY2tlbmQgPSAiY21kc3RhbnIiLCBmaWxlID0gIm1vZGVscy9jZWlsaW5nL29yaWdpbmFsX25vX2ludGVyYWN0aW9uIikpCgojIHdpdGggY2VpbGluZyBlZmZlY3Q6IGludGVyYWN0aW9uCnN1bW1hcnkodW5jZW5zb3JlZCA8LWJybShjZW5zIH4gcHJlZCpNb2RlcmF0b3IsIGRhdGEgPSBjZWlsaW5nLCAgY29yZXMgPSA0LCBiYWNrZW5kID0gImNtZHN0YW5yIiwgZmlsZSA9ICJtb2RlbHMvY2VpbGluZy9jZWlsaW5nX2VmZmVjdCIpKQoKIyB3aXRoIG9yZGluYWwgdmFyaWFibGU6IGludGVyYWN0aW9uCnN1bW1hcnkoYnJtKG9yZGluYWwgfiBwcmVkKk1vZGVyYXRvciwgZGF0YSA9IGNlaWxpbmcsIGNvcmVzID0gNCwgYmFja2VuZCA9ICJjbWRzdGFuciIsIGZpbGUgPSAibW9kZWxzL2NlaWxpbmcvb3JkaW5hbF9hc19nYXVzc2lhbiIpKQoKCnFwbG90KGNlaWxpbmckb3JkaW5hbCkKcXBsb3QoY2VpbGluZyRjZW5zKQpgYGAKCiMjIEZpdCBwcm9wZXIgbW9kZWxzCk5vdyBsZXQncyBzZXQgdXAgYSBiZXR0ZXIgbW9kZWwgaW4gYnJtcy4KRmlyc3Qgd2Ugc2V0IGEgdmFyaWFibGUgdGhhdCB0ZWxscyB1cyB3aGljaCB2YWx1ZXMgYXJlIGNlbnNvcmVkIGFuZCBpbiB3aGF0IHdheQoKYGBge3J9CmNlaWxpbmckY2Vuc29yZWQgPC0gIm5vbmUiCmNlaWxpbmckY2Vuc29yZWRbY2VpbGluZyRjZW5zID49IDJdIDwtICJyaWdodCIKdGFibGUoY2VpbGluZyRjZW5zb3JlZCkKYGBgCgpSdW4gbW9kZWwKYGBge3J9CmNlbnNvcmVkIDwtIGJybShjZW5zIHwgY2VucyhjZW5zb3JlZCkgfiBwcmVkICogTW9kZXJhdG9yLCBkYXRhID0gY2VpbGluZywgIGNvcmVzID0gNCwgYmFja2VuZCA9ICJjbWRzdGFuciIsIGZpbGUgPSAibW9kZWxzL2NlaWxpbmcvY2Vuc29yZWQiKQpzdW1tYXJ5KGNlbnNvcmVkKQpsb28odW5jZW5zb3JlZCwgY2Vuc29yZWQpCmBgYAoKCk5vdyB3ZSB0cmVhdCB0aGUgb3JkaW5hbCB2YXJpYWJsZSBhcyBvcmRpbmFsIGluc3RlYWQgb2YgR2F1c3NpYW4uIFdlJ3JlIGFzc3VtaW5nIGEgY3VtdWxhdGl2ZSBkaXN0cmlidXRpb24gd2l0aCBlcXVpZGlzdGFudCB0aHJlc2hvbGRzIChiZWNhdXNlIHRoYXQncyB3aGF0IHdlIHNpbXVsYXRlZCkuCgpgYGB7cn0KY2VpbGluZyRvcmRpbmFsIDwtIGZhY3RvcihjZWlsaW5nJG9yZGluYWwsIG9yZGVyZWQgPSBUUlVFKQpvcmRpbmFsIDwtIGJybShvcmRpbmFsIH4gcHJlZCpNb2RlcmF0b3IsIGRhdGEgPSBjZWlsaW5nLCBmYW1pbHkgPSBjdW11bGF0aXZlKCksICBjb3JlcyA9IDQsIGJhY2tlbmQgPSAiY21kc3RhbnIiLCBmaWxlID0gIm1vZGVscy9jZWlsaW5nL2N1bXVsYXRpdmUiKQpzdW1tYXJ5KG9yZGluYWwpCmBgYAo=</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("box_1_ceiling_effect.Rmd");
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

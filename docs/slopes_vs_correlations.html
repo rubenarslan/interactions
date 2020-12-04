@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>slopes_vs_correlations.utf8</title>
+
+<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  { color: #cccccc; background-color: #303030; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ffcfaf; } /* Alert */
+code span.an { color: #7f9f7f; font-weight: bold; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bn { color: #dca3a3; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #f0dfaf; } /* ControlFlow */
+code span.ch { color: #dca3a3; } /* Char */
+code span.cn { color: #dca3a3; font-weight: bold; } /* Constant */
+code span.co { color: #7f9f7f; } /* Comment */
+code span.cv { color: #7f9f7f; font-weight: bold; } /* CommentVar */
+code span.do { color: #7f9f7f; } /* Documentation */
+code span.dt { color: #dfdfbf; } /* DataType */
+code span.dv { color: #dcdccc; } /* DecVal */
+code span.er { color: #c3bf9f; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #c0bed1; } /* Float */
+code span.fu { color: #efef8f; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #7f9f7f; font-weight: bold; } /* Information */
+code span.kw { color: #f0dfaf; } /* Keyword */
+code span.op { color: #f0efd0; } /* Operator */
+code span.ot { color: #efef8f; } /* Other */
+code span.pp { color: #ffcfaf; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #dca3a3; } /* SpecialChar */
+code span.ss { color: #cc9393; } /* SpecialString */
+code span.st { color: #cc9393; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #cc9393; } /* VerbatimString */
+code span.wa { color: #7f9f7f; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 64px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h2 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h3 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h4 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h5 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h6 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Issues with Interactions</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="scale_dependence.html">Scale dependence</a>
+</li>
+<li>
+  <a href="slopes_vs_correlations.html">Slopes vs. correlations</a>
+</li>
+<li>
+  <a href="causal_identification.html">Causal identification</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Boxes
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="box_1_ceiling_effect.html">Box 1: Ceiling and floor effects</a>
+    </li>
+    <li>
+      <a href="box_2_same_correlation_different_slope.html">Box 2: Same correlation does not imply same slope</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/rubenarslan/interactions">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<div id="differences-in-slopes-or-residual-variance" class="section level1">
+<h1>Differences in slopes or residual variance</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span></code></pre></div>
+<div id="data-generating-model" class="section level3">
+<h3>Data-generating model</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>days_per_person <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_days <span class="ot">&lt;-</span> n<span class="sc">*</span>days_per_person</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20191005</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>people <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">single =</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">each =</span> n<span class="sc">/</span><span class="dv">2</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">single_f =</span> <span class="fu">factor</span>(single, <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="fu">c</span>(<span class="st">&quot;in relationship&quot;</span>, <span class="st">&quot;single&quot;</span>)),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">average_job_satisfaction =</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">average_relationship_satisfaction =</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">average_well_being =</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(people<span class="sc">$</span>average_well_being)</span></code></pre></div>
+<pre><code>## [1] 0.94</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>diary <span class="ot">&lt;-</span>  people <span class="sc">%&gt;%</span> <span class="fu">full_join</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="at">each =</span> days_per_person),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">by =</span> <span class="st">&#39;id&#39;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Job_satisfaction =</span> <span class="fl">0.8</span> <span class="sc">*</span> average_job_satisfaction <span class="sc">+</span> <span class="fl">0.6</span> <span class="sc">*</span> <span class="fu">rnorm</span>(n_days),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Relationship_satisfaction =</span> <span class="fl">0.8</span> <span class="sc">*</span> average_relationship_satisfaction <span class="sc">+</span> <span class="fl">0.6</span> <span class="sc">*</span> <span class="fu">rnorm</span>(n_days),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">residual =</span> <span class="fu">rnorm</span>(n_days)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(diary<span class="sc">$</span>Job_satisfaction)</span></code></pre></div>
+<pre><code>## [1] 0.99</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(diary<span class="sc">$</span>Relationship_satisfaction)</span></code></pre></div>
+<pre><code>## [1] 1</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(diary<span class="sc">$</span>residual)</span></code></pre></div>
+<pre><code>## [1] 0.99</code></pre>
+</div>
+<div id="panel-a-slopes-differ" class="section level2">
+<h2>Panel A: Slopes differ</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>diary <span class="ot">&lt;-</span> diary <span class="sc">%&gt;%</span>  </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">OWB =</span> <span class="fu">if_else</span>(single <span class="sc">==</span> <span class="dv">1</span>, <span class="fl">0.6</span>, <span class="fl">0.4</span>) <span class="sc">*</span> Job_satisfaction <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>average_well_being <span class="sc">+</span> <span class="fl">0.7</span> <span class="sc">*</span> residual</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(diary<span class="sc">$</span>OWB)</span></code></pre></div>
+<pre><code>## [1] 0.96</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cor</span>(diary <span class="sc">%&gt;%</span> <span class="fu">select</span>(single, Job_satisfaction, Relationship_satisfaction, OWB)),<span class="dv">2</span>)</span></code></pre></div>
+<pre><code>##                           single Job_satisfaction Relationship_satisfaction
+## single                      1.00             0.18                     -0.06
+## Job_satisfaction            0.18             1.00                     -0.12
+## Relationship_satisfaction  -0.06            -0.12                      1.00
+## OWB                         0.03             0.49                      0.00
+##                            OWB
+## single                    0.03
+## Job_satisfaction          0.49
+## Relationship_satisfaction 0.00
+## OWB                       1.00</code></pre>
+<div id="fit-lm" class="section level3">
+<h3>Fit LM</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">brm</span>(OWB <span class="sc">~</span> Job_satisfaction<span class="sc">*</span>single_f <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> Job_satisfaction <span class="sc">|</span> id), <span class="at">data =</span> diary, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/slopes_differ&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>diary[,<span class="fu">c</span>(<span class="st">&quot;estimate__&quot;</span>, <span class="st">&quot;std.error__&quot;</span>, <span class="st">&quot;lower__&quot;</span>, <span class="st">&quot;upper__&quot;</span>)] <span class="ot">&lt;-</span> <span class="fu">fitted</span>(model, <span class="at">re_formula =</span> <span class="cn">NA</span>)</span></code></pre></div>
+</div>
+<div id="inspect-correlations" class="section level3">
+<h3>Inspect correlations</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>(cors <span class="ot">&lt;-</span> diary <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(single_f, id) <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">cor =</span> psych<span class="sc">::</span><span class="fu">fisherz</span>(<span class="fu">cor</span>(Job_satisfaction, OWB)),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">slope =</span> broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">lm</span>(OWB <span class="sc">~</span> Job_satisfaction))[<span class="dv">2</span>, <span class="st">&quot;estimate&quot;</span>][[<span class="dv">1</span>]],</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">residual =</span> <span class="fu">var</span>(<span class="fu">resid</span>(<span class="fu">lm</span>(OWB <span class="sc">~</span> Job_satisfaction))),</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_prod =</span> <span class="fu">var</span>(OWB),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_prod =</span> <span class="fu">mean</span>(OWB),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_est =</span> <span class="fu">max</span>(estimate__),</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_js =</span> <span class="fu">max</span>(Job_satisfaction),</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_js =</span> <span class="fu">mean</span>(Job_satisfaction),</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_js =</span> <span class="fu">var</span>(Job_satisfaction)) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">cor =</span> psych<span class="sc">::</span><span class="fu">fisherz2r</span>(<span class="fu">mean</span>(cor)),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">slope =</span> <span class="fu">mean</span>(slope),</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_resid =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(residual)),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_prod =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(var_prod)),</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_prod =</span> <span class="fu">mean</span>(mean_prod),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_js =</span> <span class="fu">max</span>(max_js),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_est =</span> <span class="fu">max</span>(max_est),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_js =</span> <span class="fu">mean</span>(mean_js),</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_js =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(var_js)))</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## `summarise()` regrouping output by &#39;single_f&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 2 x 10
+##   single_f     cor slope sd_resid sd_prod mean_prod max_js max_est mean_js sd_js
+##   &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+## 1 in relati… 0.324 0.384    0.678   0.722    0.0912   2.73    1.16 -0.0465 0.606
+## 2 single     0.439 0.575    0.685   0.768    0.142    3.27    1.83  0.307  0.581</code></pre>
+</div>
+<div id="scatter-plot" class="section level3">
+<h3>Scatter plot</h3>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(diary, <span class="fu">aes</span>(Job_satisfaction, OWB)) <span class="sc">+</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> single_f) <span class="sc">+</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.03</span>, <span class="at">color =</span> <span class="st">&quot;#6E9181&quot;</span>) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(Job_satisfaction, estimate__, <span class="at">ymin =</span> lower__, <span class="at">ymax =</span> upper__), <span class="at">stat =</span> <span class="st">&#39;identity&#39;</span>, <span class="at">color =</span> <span class="st">&#39;black&#39;</span>) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(max_js <span class="sc">+</span> <span class="fl">0.1</span>, max_est <span class="sc">+</span> <span class="fl">0.3</span>, <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;b==plain(&quot;%.2f&quot;)&#39;</span>, slope)), <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">guide =</span> F, <span class="at">option =</span> <span class="st">&quot;B&quot;</span>) <span class="sc">+</span>   </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">color =</span> <span class="st">&quot;#6E9181&quot;</span>) <span class="sc">+</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;italic(&quot;r&quot;)==plain(&quot;%.2f&quot;)&#39;</span>, cor)), <span class="at">x=</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">y=</span><span class="fl">2.5</span>, <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_text(aes(max_js, y = mean_prod - 0.3, label = sprintf(&#39;sigma[y]==plain(&quot;%.2f&quot;)&#39;, sd_prod)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_segment(aes(x = max_js + 0.25, y = mean_prod - sd_prod/2, xend = max_js + 0.25, yend = mean_prod + sd_prod/2), data = cors, size = 1, color = &quot;#219FD8&quot;) +</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_text(aes(max_js + 0.6, y = mean_prod - 0.5, label = sprintf(&#39;sigma[res(y)]==plain(&quot;%.2f&quot;)&#39;, sd_resid)),, data = cors, hjust = 0, parse = TRUE, size = 3, angle = 90) +</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_segment(aes(x = max_js + 0.85, y = mean_prod - sd_resid/2, xend = max_js + 0.85, yend = mean_prod + sd_resid/2), data = cors, size = 1, color = &quot;#219FD8&quot;) +</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_text(aes(label = sprintf(&#39;sigma[x]==plain(&quot;%.2f&quot;)&#39;, sd_js),  x= mean_js - 0.5, y = -2.8), data = cors, hjust = 0, parse = TRUE, size = 3) +</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_segment(aes(x = mean_js - sd_js/2, y = -3, xend = mean_js + sd_js/2, yend = -3), data = cors, size = 1, color = &quot;#219FD8&quot;) +</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="fl">4.5</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Job satisfaction&quot;</span>) <span class="sc">+</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Overall well-being&quot;</span>) <span class="sc">+</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_clean</span>()</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>m1</span></code></pre></div>
+<p><img src="slopes_vs_correlations_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+</div>
+<div id="panel-b-residual-variances-not-slopes-differ" class="section level2">
+<h2>Panel B: Residual variances, not slopes differ</h2>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>diary <span class="ot">&lt;-</span> diary <span class="sc">%&gt;%</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">OWB =</span> <span class="fl">0.4</span> <span class="sc">*</span> Job_satisfaction <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>average_well_being <span class="sc">+</span> <span class="fu">if_else</span>(single <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">0</span>, <span class="fl">0.8</span>) <span class="sc">*</span> Relationship_satisfaction <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> residual</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(diary<span class="sc">$</span>OWB)</span></code></pre></div>
+<pre><code>## [1] 0.99</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cor</span>(diary <span class="sc">%&gt;%</span> <span class="fu">select</span>(single, Job_satisfaction, Relationship_satisfaction, OWB)),<span class="dv">2</span>)</span></code></pre></div>
+<pre><code>##                           single Job_satisfaction Relationship_satisfaction
+## single                      1.00             0.18                     -0.06
+## Job_satisfaction            0.18             1.00                     -0.12
+## Relationship_satisfaction  -0.06            -0.12                      1.00
+## OWB                        -0.01             0.32                      0.37
+##                             OWB
+## single                    -0.01
+## Job_satisfaction           0.32
+## Relationship_satisfaction  0.37
+## OWB                        1.00</code></pre>
+<div id="fit-lm-1" class="section level3">
+<h3>Fit LM</h3>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">brm</span>(OWB <span class="sc">~</span> Job_satisfaction<span class="sc">*</span>single_f <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> Job_satisfaction <span class="sc">|</span> id), <span class="at">data =</span> diary, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/corrs_differ_not_slopes&quot;</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>diary[,<span class="fu">c</span>(<span class="st">&quot;estimate__&quot;</span>, <span class="st">&quot;std.error__&quot;</span>, <span class="st">&quot;lower__&quot;</span>, <span class="st">&quot;upper__&quot;</span>)] <span class="ot">&lt;-</span> <span class="fu">fitted</span>(model, <span class="at">re_formula =</span> <span class="cn">NA</span>)</span></code></pre></div>
+</div>
+<div id="inspect-correlations-1" class="section level3">
+<h3>Inspect correlations</h3>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>(cors <span class="ot">&lt;-</span> diary <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(single_f, id) <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">cor =</span> psych<span class="sc">::</span><span class="fu">fisherz</span>(<span class="fu">cor</span>(Job_satisfaction, OWB)),</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">slope =</span> broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">lm</span>(OWB <span class="sc">~</span> Job_satisfaction))[<span class="dv">2</span>, <span class="st">&quot;estimate&quot;</span>][[<span class="dv">1</span>]],</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">residual =</span> <span class="fu">var</span>(<span class="fu">resid</span>(<span class="fu">lm</span>(OWB <span class="sc">~</span> Job_satisfaction))),</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_prod =</span> <span class="fu">var</span>(OWB),</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_prod =</span> <span class="fu">mean</span>(OWB),</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_est =</span> <span class="fu">max</span>(estimate__),</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_js =</span> <span class="fu">max</span>(Job_satisfaction),</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_js =</span> <span class="fu">mean</span>(Job_satisfaction),</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_js =</span> <span class="fu">var</span>(Job_satisfaction)) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">cor =</span> psych<span class="sc">::</span><span class="fu">fisherz2r</span>(<span class="fu">mean</span>(cor)),</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">slope =</span> <span class="fu">mean</span>(slope),</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_resid =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(residual)),</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_prod =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(var_prod)),</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_prod =</span> <span class="fu">mean</span>(mean_prod),</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_js =</span> <span class="fu">max</span>(max_js),</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_est =</span> <span class="fu">max</span>(max_est),</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_js =</span> <span class="fu">mean</span>(mean_js),</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_js =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(var_js)))</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## `summarise()` regrouping output by &#39;single_f&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 2 x 10
+##   single_f     cor slope sd_resid sd_prod mean_prod max_js max_est mean_js sd_js
+##   &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+## 1 in relati… 0.310 0.359    0.670   0.707    0.100    2.73    1.07 -0.0465 0.606
+## 2 single     0.414 0.382    0.489   0.541    0.0822   3.27    1.22  0.307  0.581</code></pre>
+</div>
+<div id="scatter-plot-1" class="section level3">
+<h3>Scatter plot</h3>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(diary, <span class="fu">aes</span>(Job_satisfaction, OWB)) <span class="sc">+</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> single_f) <span class="sc">+</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.03</span>, <span class="at">color =</span> <span class="st">&quot;#6E9181&quot;</span>) <span class="sc">+</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_line(aes(color = factor(if_else(id &gt; 25, id - 24.5, as.numeric(id)))), stat = &quot;smooth&quot;, method = &#39;lm&#39;, alpha = 0.3) +</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(Job_satisfaction, estimate__, <span class="at">ymin =</span> lower__, <span class="at">ymax =</span> upper__), <span class="at">stat =</span> <span class="st">&#39;identity&#39;</span>, <span class="at">color =</span> <span class="st">&#39;black&#39;</span>) <span class="sc">+</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(max_js <span class="sc">+</span> <span class="fl">0.1</span>, max_est <span class="sc">+</span> <span class="fl">0.3</span>, <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;b==plain(&quot;%.2f&quot;)&#39;</span>, slope)), <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">guide =</span> F, <span class="at">option =</span> <span class="st">&quot;B&quot;</span>) <span class="sc">+</span>   </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">color =</span> <span class="st">&quot;#6E9181&quot;</span>) <span class="sc">+</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;italic(&quot;r&quot;)==plain(&quot;%.2f&quot;)&#39;</span>, cor)), <span class="at">x=</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">y=</span><span class="fl">2.5</span>, <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="fl">4.5</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Job satisfaction&quot;</span>) <span class="sc">+</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Overall well-being&quot;</span>) <span class="sc">+</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_clean</span>()</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>m2</span></code></pre></div>
+<p><img src="slopes_vs_correlations_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>diary <span class="ot">&lt;-</span> diary <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">Job_satisfaction_old =</span> Job_satisfaction,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+</div>
+<div id="panel-c-restricted-variance-in-predictor" class="section level2">
+<h2>Panel C: Restricted variance in predictor</h2>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>diary <span class="ot">&lt;-</span> diary <span class="sc">%&gt;%</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Job_satisfaction =</span> Job_satisfaction_old,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Job_satisfaction =</span> <span class="fu">if_else</span>(single <span class="sc">==</span> <span class="dv">0</span>, Job_satisfaction <span class="sc">*</span> <span class="fl">0.7</span>, Job_satisfaction),</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">OWB =</span> <span class="fl">0.6</span> <span class="sc">*</span> Job_satisfaction <span class="sc">+</span> <span class="fl">0.5</span><span class="sc">*</span>average_well_being <span class="sc">+</span> <span class="fl">0.7</span> <span class="sc">*</span> residual</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(diary<span class="sc">$</span>Job_satisfaction)</span></code></pre></div>
+<pre><code>## [1] 0.87</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(diary<span class="sc">$</span>OWB)</span></code></pre></div>
+<pre><code>## [1] 0.96</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cor</span>(diary <span class="sc">%&gt;%</span> <span class="fu">select</span>(single, Job_satisfaction, Relationship_satisfaction, OWB)),<span class="dv">2</span>)</span></code></pre></div>
+<pre><code>##                           single Job_satisfaction Relationship_satisfaction
+## single                      1.00             0.20                     -0.06
+## Job_satisfaction            0.20             1.00                     -0.12
+## Relationship_satisfaction  -0.06            -0.12                      1.00
+## OWB                         0.03             0.49                      0.00
+##                            OWB
+## single                    0.03
+## Job_satisfaction          0.49
+## Relationship_satisfaction 0.00
+## OWB                       1.00</code></pre>
+<div id="fit-lm-2" class="section level3">
+<h3>Fit LM</h3>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">brm</span>(OWB <span class="sc">~</span> Job_satisfaction<span class="sc">*</span>single_f <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> Job_satisfaction <span class="sc">|</span> id), <span class="at">data =</span> diary, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/restricted_pred&quot;</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>diary[,<span class="fu">c</span>(<span class="st">&quot;estimate__&quot;</span>, <span class="st">&quot;std.error__&quot;</span>, <span class="st">&quot;lower__&quot;</span>, <span class="st">&quot;upper__&quot;</span>)] <span class="ot">&lt;-</span> <span class="fu">fitted</span>(model, <span class="at">re_formula =</span> <span class="cn">NA</span>)</span></code></pre></div>
+</div>
+<div id="inspect-correlations-2" class="section level3">
+<h3>Inspect correlations</h3>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>(cors <span class="ot">&lt;-</span> diary <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(single_f, id) <span class="sc">%&gt;%</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">cor =</span> psych<span class="sc">::</span><span class="fu">fisherz</span>(<span class="fu">cor</span>(Job_satisfaction, OWB)),</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">slope =</span> broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">lm</span>(OWB <span class="sc">~</span> Job_satisfaction))[<span class="dv">2</span>, <span class="st">&quot;estimate&quot;</span>][[<span class="dv">1</span>]],</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">residual =</span> <span class="fu">var</span>(<span class="fu">resid</span>(<span class="fu">lm</span>(OWB <span class="sc">~</span> Job_satisfaction))),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_prod =</span> <span class="fu">var</span>(OWB),</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_prod =</span> <span class="fu">mean</span>(OWB),</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_est =</span> <span class="fu">max</span>(estimate__),</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">min_est =</span> <span class="fu">min</span>(estimate__),</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_js =</span> <span class="fu">max</span>(Job_satisfaction),</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">min_js =</span> <span class="fu">min</span>(Job_satisfaction),</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_js =</span> <span class="fu">mean</span>(Job_satisfaction),</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_js =</span> <span class="fu">var</span>(Job_satisfaction)) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">cor =</span> psych<span class="sc">::</span><span class="fu">fisherz2r</span>(<span class="fu">mean</span>(cor)),</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">slope =</span> <span class="fu">mean</span>(slope),</span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_resid =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(residual)),</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_prod =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(var_prod)),</span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_prod =</span> <span class="fu">mean</span>(mean_prod),</span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_js =</span> <span class="fu">max</span>(max_js),</span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">min_js =</span> <span class="fu">min</span>(min_js),</span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_est =</span> <span class="fu">max</span>(max_est),</span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">min_est =</span> <span class="fu">min</span>(min_est),</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_js =</span> <span class="fu">mean</span>(mean_js),</span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_js =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(var_js)))</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## `summarise()` regrouping output by &#39;single_f&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 2 x 12
+##   single_f   cor slope sd_resid sd_prod mean_prod max_js min_js max_est min_est
+##   &lt;fct&gt;    &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 in rela… 0.339 0.577    0.678   0.726    0.0903   1.91  -1.92    1.22   -1.01
+## 2 single   0.439 0.575    0.685   0.768    0.142    3.27  -3.18    1.83   -1.84
+## # … with 2 more variables: mean_js &lt;dbl&gt;, sd_js &lt;dbl&gt;</code></pre>
+</div>
+<div id="scatter-plot-2" class="section level3">
+<h3>Scatter plot</h3>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(diary, <span class="fu">aes</span>(Job_satisfaction, OWB)) <span class="sc">+</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> single_f) <span class="sc">+</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.03</span>, <span class="at">color =</span> <span class="st">&quot;#6E9181&quot;</span>) <span class="sc">+</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_line(aes(color = factor(if_else(id &gt; 25, id - 24.5, as.numeric(id)))), stat = &quot;smooth&quot;, method = &#39;lm&#39;, alpha = 0.3) +</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(Job_satisfaction, estimate__, <span class="at">ymin =</span> lower__, <span class="at">ymax =</span> upper__), <span class="at">stat =</span> <span class="st">&#39;identity&#39;</span>, <span class="at">color =</span> <span class="st">&#39;black&#39;</span>) <span class="sc">+</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(max_js <span class="sc">+</span> <span class="fl">0.1</span>, max_est <span class="sc">+</span> <span class="fl">0.3</span>, <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;b==plain(&quot;%.2f&quot;)&#39;</span>, slope)), <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">guide =</span> F, <span class="at">option =</span> <span class="st">&quot;B&quot;</span>) <span class="sc">+</span>   </span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">color =</span> <span class="st">&quot;#6E9181&quot;</span>) <span class="sc">+</span></span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;italic(&quot;r&quot;)==plain(&quot;%.2f&quot;)&#39;</span>, cor)), <span class="at">x=</span> <span class="sc">-</span><span class="dv">3</span>, <span class="at">y=</span><span class="fl">2.5</span>, <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_limits</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">3.7</span>, <span class="fl">4.5</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>,<span class="dv">4</span>)) <span class="sc">+</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Job satisfaction&quot;</span>) <span class="sc">+</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Overall well-being&quot;</span>) <span class="sc">+</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_clean</span>()</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>m3</span></code></pre></div>
+<p><img src="slopes_vs_correlations_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+</div>
+</div>
+<div id="altogether" class="section level2">
+<h2>Altogether</h2>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cowplot)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(m1, m2, m3, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">labels =</span> <span class="st">&quot;AUTO&quot;</span>)</span></code></pre></div>
+<p><img src="slopes_vs_correlations_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;plots/job_satisfaction_singles.pdf&quot;</span>, <span class="at">width =</span> <span class="dv">5</span>, <span class="at">height =</span> <span class="dv">7</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;plots/job_satisfaction_singles.png&quot;</span>, <span class="at">width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">7</span>)</span></code></pre></div>
+</div>
+</div>
+
+<div id="rmd-source-code">IyBEaWZmZXJlbmNlcyBpbiBzbG9wZXMgb3IgcmVzaWR1YWwgdmFyaWFuY2UKCmBgYHtyfQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShicm1zKQpgYGAKCiMjIyBEYXRhLWdlbmVyYXRpbmcgbW9kZWwKYGBge3J9Cm4gPC0gNTAKZGF5c19wZXJfcGVyc29uIDwtIDUwCm5fZGF5cyA8LSBuKmRheXNfcGVyX3BlcnNvbgpzZXQuc2VlZCgyMDE5MTAwNSkKcGVvcGxlIDwtIHRpYmJsZSgKICBpZCA9IDE6biwKICBzaW5nbGUgPSByZXAoMDoxLCBlYWNoID0gbi8yKSwKICBzaW5nbGVfZiA9IGZhY3RvcihzaW5nbGUsIDA6MSwgYygiaW4gcmVsYXRpb25zaGlwIiwgInNpbmdsZSIpKSwKICBhdmVyYWdlX2pvYl9zYXRpc2ZhY3Rpb24gPSBybm9ybShuKSwKICBhdmVyYWdlX3JlbGF0aW9uc2hpcF9zYXRpc2ZhY3Rpb24gPSBybm9ybShuKSwKICBhdmVyYWdlX3dlbGxfYmVpbmcgPSBybm9ybShuKQopCnNkKHBlb3BsZSRhdmVyYWdlX3dlbGxfYmVpbmcpCgpkaWFyeSA8LSAgcGVvcGxlICU+JSBmdWxsX2pvaW4oCiAgdGliYmxlKAogICAgaWQgPSByZXAoMTpuLCBlYWNoID0gZGF5c19wZXJfcGVyc29uKSwKICApLCBieSA9ICdpZCcpICU+JSAKICBtdXRhdGUoCiAgICBKb2Jfc2F0aXNmYWN0aW9uID0gMC44ICogYXZlcmFnZV9qb2Jfc2F0aXNmYWN0aW9uICsgMC42ICogcm5vcm0obl9kYXlzKSwKICAgIFJlbGF0aW9uc2hpcF9zYXRpc2ZhY3Rpb24gPSAwLjggKiBhdmVyYWdlX3JlbGF0aW9uc2hpcF9zYXRpc2ZhY3Rpb24gKyAwLjYgKiBybm9ybShuX2RheXMpLAogICAgcmVzaWR1YWwgPSBybm9ybShuX2RheXMpCiAgKQpzZChkaWFyeSRKb2Jfc2F0aXNmYWN0aW9uKQpzZChkaWFyeSRSZWxhdGlvbnNoaXBfc2F0aXNmYWN0aW9uKQpzZChkaWFyeSRyZXNpZHVhbCkKYGBgCgojIyBQYW5lbCBBOiBTbG9wZXMgZGlmZmVyCmBgYHtyfQpkaWFyeSA8LSBkaWFyeSAlPiUgIAogIG11dGF0ZSgKICAgIE9XQiA9IGlmX2Vsc2Uoc2luZ2xlID09IDEsIDAuNiwgMC40KSAqIEpvYl9zYXRpc2ZhY3Rpb24gKyAwLjUqYXZlcmFnZV93ZWxsX2JlaW5nICsgMC43ICogcmVzaWR1YWwKICApCnNkKGRpYXJ5JE9XQikKcm91bmQoY29yKGRpYXJ5ICU+JSBzZWxlY3Qoc2luZ2xlLCBKb2Jfc2F0aXNmYWN0aW9uLCBSZWxhdGlvbnNoaXBfc2F0aXNmYWN0aW9uLCBPV0IpKSwyKQpgYGAKCiMjIyBGaXQgTE0KYGBge3J9Cm1vZGVsIDwtIGJybShPV0IgfiBKb2Jfc2F0aXNmYWN0aW9uKnNpbmdsZV9mICsgKDEgKyBKb2Jfc2F0aXNmYWN0aW9uIHwgaWQpLCBkYXRhID0gZGlhcnksIGNvcmVzID0gNCwgYmFja2VuZCA9ICJjbWRzdGFuciIsIGZpbGUgPSAibW9kZWxzL3Nsb3Blc19kaWZmZXIiKQoKZGlhcnlbLGMoImVzdGltYXRlX18iLCAic3RkLmVycm9yX18iLCAibG93ZXJfXyIsICJ1cHBlcl9fIildIDwtIGZpdHRlZChtb2RlbCwgcmVfZm9ybXVsYSA9IE5BKQpgYGAKCgojIyMgSW5zcGVjdCBjb3JyZWxhdGlvbnMKYGBge3J9Cihjb3JzIDwtIGRpYXJ5ICU+JSBncm91cF9ieShzaW5nbGVfZiwgaWQpICU+JQogIHN1bW1hcmlzZShjb3IgPSBwc3ljaDo6ZmlzaGVyeihjb3IoSm9iX3NhdGlzZmFjdGlvbiwgT1dCKSksCiAgICAgICAgICAgIHNsb3BlID0gYnJvb206OnRpZHkobG0oT1dCIH4gSm9iX3NhdGlzZmFjdGlvbikpWzIsICJlc3RpbWF0ZSJdW1sxXV0sCiAgICAgICAgICAgIHJlc2lkdWFsID0gdmFyKHJlc2lkKGxtKE9XQiB+IEpvYl9zYXRpc2ZhY3Rpb24pKSksCiAgICAgICAgICAgIHZhcl9wcm9kID0gdmFyKE9XQiksCiAgICAgICAgICAgIG1lYW5fcHJvZCA9IG1lYW4oT1dCKSwKICAgICAgICAgICAgbWF4X2VzdCA9IG1heChlc3RpbWF0ZV9fKSwKICAgICAgICAgICAgbWF4X2pzID0gbWF4KEpvYl9zYXRpc2ZhY3Rpb24pLAogICAgICAgICAgICBtZWFuX2pzID0gbWVhbihKb2Jfc2F0aXNmYWN0aW9uKSwKICAgICAgICAgICAgdmFyX2pzID0gdmFyKEpvYl9zYXRpc2ZhY3Rpb24pKSAlPiUgCiAgc3VtbWFyaXNlKGNvciA9IHBzeWNoOjpmaXNoZXJ6MnIobWVhbihjb3IpKSwKICAgICAgICAgICAgc2xvcGUgPSBtZWFuKHNsb3BlKSwKICAgICAgICAgICAgc2RfcmVzaWQgPSBzcXJ0KG1lYW4ocmVzaWR1YWwpKSwKICAgICAgICAgICAgc2RfcHJvZCA9IHNxcnQobWVhbih2YXJfcHJvZCkpLAogICAgICAgICAgICBtZWFuX3Byb2QgPSBtZWFuKG1lYW5fcHJvZCksCiAgICAgICAgICAgIG1heF9qcyA9IG1heChtYXhfanMpLAogICAgICAgICAgICBtYXhfZXN0ID0gbWF4KG1heF9lc3QpLAogICAgICAgICAgICBtZWFuX2pzID0gbWVhbihtZWFuX2pzKSwKICAgICAgICAgICAgc2RfanMgPSBzcXJ0KG1lYW4odmFyX2pzKSkpCikKYGBgCgojIyMgU2NhdHRlciBwbG90CmBgYHtyfQoKbTEgPC0gZ2dwbG90KGRpYXJ5LCBhZXMoSm9iX3NhdGlzZmFjdGlvbiwgT1dCKSkgKwogIGZhY2V0X3dyYXAofiBzaW5nbGVfZikgKwogIGdlb21fcG9pbnQoYWxwaGEgPSAwLjAzLCBjb2xvciA9ICIjNkU5MTgxIikgKwoKICBnZW9tX3Ntb290aChhZXMoSm9iX3NhdGlzZmFjdGlvbiwgZXN0aW1hdGVfXywgeW1pbiA9IGxvd2VyX18sIHltYXggPSB1cHBlcl9fKSwgc3RhdCA9ICdpZGVudGl0eScsIGNvbG9yID0gJ2JsYWNrJykgKwogIAogIGdlb21fdGV4dChhZXMobWF4X2pzICsgMC4xLCBtYXhfZXN0ICsgMC4zLCBsYWJlbCA9IHNwcmludGYoJ2I9PXBsYWluKCIlLjJmIiknLCBzbG9wZSkpLCBkYXRhID0gY29ycywgaGp1c3QgPSAwLCBwYXJzZSA9IFRSVUUsIHNpemUgPSAzKSArCiAgc2NhbGVfY29sb3JfdmlyaWRpc19kKGd1aWRlID0gRiwgb3B0aW9uID0gIkIiKSArICAgCiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuMSwgY29sb3IgPSAiIzZFOTE4MSIpICsKICAKICBnZW9tX3RleHQoYWVzKGxhYmVsID0gc3ByaW50ZignaXRhbGljKCJyIik9PXBsYWluKCIlLjJmIiknLCBjb3IpKSwgeD0gLTMsIHk9Mi41LCBkYXRhID0gY29ycywgaGp1c3QgPSAwLCBwYXJzZSA9IFRSVUUsIHNpemUgPSAzKSArCiAgCiAgIyBnZW9tX3RleHQoYWVzKG1heF9qcywgeSA9IG1lYW5fcHJvZCAtIDAuMywgbGFiZWwgPSBzcHJpbnRmKCdzaWdtYVt5XT09cGxhaW4oIiUuMmYiKScsIHNkX3Byb2QpKSwsIGRhdGEgPSBjb3JzLCBoanVzdCA9IDAsIHBhcnNlID0gVFJVRSwgc2l6ZSA9IDMsIGFuZ2xlID0gOTApICsKICAjIGdlb21fc2VnbWVudChhZXMoeCA9IG1heF9qcyArIDAuMjUsIHkgPSBtZWFuX3Byb2QgLSBzZF9wcm9kLzIsIHhlbmQgPSBtYXhfanMgKyAwLjI1LCB5ZW5kID0gbWVhbl9wcm9kICsgc2RfcHJvZC8yKSwgZGF0YSA9IGNvcnMsIHNpemUgPSAxLCBjb2xvciA9ICIjMjE5RkQ4IikgKwoKICAjIGdlb21fdGV4dChhZXMobWF4X2pzICsgMC42LCB5ID0gbWVhbl9wcm9kIC0gMC41LCBsYWJlbCA9IHNwcmludGYoJ3NpZ21hW3Jlcyh5KV09PXBsYWluKCIlLjJmIiknLCBzZF9yZXNpZCkpLCwgZGF0YSA9IGNvcnMsIGhqdXN0ID0gMCwgcGFyc2UgPSBUUlVFLCBzaXplID0gMywgYW5nbGUgPSA5MCkgKwogICMgZ2VvbV9zZWdtZW50KGFlcyh4ID0gbWF4X2pzICsgMC44NSwgeSA9IG1lYW5fcHJvZCAtIHNkX3Jlc2lkLzIsIHhlbmQgPSBtYXhfanMgKyAwLjg1LCB5ZW5kID0gbWVhbl9wcm9kICsgc2RfcmVzaWQvMiksIGRhdGEgPSBjb3JzLCBzaXplID0gMSwgY29sb3IgPSAiIzIxOUZEOCIpICsKCiAgIyBnZW9tX3RleHQoYWVzKGxhYmVsID0gc3ByaW50Zignc2lnbWFbeF09PXBsYWluKCIlLjJmIiknLCBzZF9qcyksICB4PSBtZWFuX2pzIC0gMC41LCB5ID0gLTIuOCksIGRhdGEgPSBjb3JzLCBoanVzdCA9IDAsIHBhcnNlID0gVFJVRSwgc2l6ZSA9IDMpICsKICAjIGdlb21fc2VnbWVudChhZXMoeCA9IG1lYW5fanMgLSBzZF9qcy8yLCB5ID0gLTMsIHhlbmQgPSBtZWFuX2pzICsgc2RfanMvMiwgeWVuZCA9IC0zKSwgZGF0YSA9IGNvcnMsIHNpemUgPSAxLCBjb2xvciA9ICIjMjE5RkQ4IikgKwogIAogIGV4cGFuZF9saW1pdHMoeCA9IGMoNC41KSwgeSA9IGMoLTMsNCkpICsKICB4bGFiKCJKb2Igc2F0aXNmYWN0aW9uIikgKwogIHlsYWIoIk92ZXJhbGwgd2VsbC1iZWluZyIpICsKICBnZ3RoZW1lczo6dGhlbWVfY2xlYW4oKQptMQpgYGAKCgojIyBQYW5lbCBCOiBSZXNpZHVhbCB2YXJpYW5jZXMsIG5vdCBzbG9wZXMgZGlmZmVyCmBgYHtyfQpkaWFyeSA8LSBkaWFyeSAlPiUgCiAgbXV0YXRlKAogICAgT1dCID0gMC40ICogSm9iX3NhdGlzZmFjdGlvbiArIDAuNSphdmVyYWdlX3dlbGxfYmVpbmcgKyBpZl9lbHNlKHNpbmdsZSA9PSAxLCAwLCAwLjgpICogUmVsYXRpb25zaGlwX3NhdGlzZmFjdGlvbiArIDAuNSAqIHJlc2lkdWFsCiAgKQoKc2QoZGlhcnkkT1dCKQpyb3VuZChjb3IoZGlhcnkgJT4lIHNlbGVjdChzaW5nbGUsIEpvYl9zYXRpc2ZhY3Rpb24sIFJlbGF0aW9uc2hpcF9zYXRpc2ZhY3Rpb24sIE9XQikpLDIpCmBgYAoKIyMjIEZpdCBMTQpgYGB7cn0KbW9kZWwgPC0gYnJtKE9XQiB+IEpvYl9zYXRpc2ZhY3Rpb24qc2luZ2xlX2YgKyAoMSArIEpvYl9zYXRpc2ZhY3Rpb24gfCBpZCksIGRhdGEgPSBkaWFyeSwgY29yZXMgPSA0LCBiYWNrZW5kID0gImNtZHN0YW5yIiwgZmlsZSA9ICJtb2RlbHMvY29ycnNfZGlmZmVyX25vdF9zbG9wZXMiKQoKZGlhcnlbLGMoImVzdGltYXRlX18iLCAic3RkLmVycm9yX18iLCAibG93ZXJfXyIsICJ1cHBlcl9fIildIDwtIGZpdHRlZChtb2RlbCwgcmVfZm9ybXVsYSA9IE5BKQpgYGAKCgojIyMgSW5zcGVjdCBjb3JyZWxhdGlvbnMKYGBge3J9Cihjb3JzIDwtIGRpYXJ5ICU+JSBncm91cF9ieShzaW5nbGVfZiwgaWQpICU+JQogIHN1bW1hcmlzZShjb3IgPSBwc3ljaDo6ZmlzaGVyeihjb3IoSm9iX3NhdGlzZmFjdGlvbiwgT1dCKSksCiAgICAgICAgICAgIHNsb3BlID0gYnJvb206OnRpZHkobG0oT1dCIH4gSm9iX3NhdGlzZmFjdGlvbikpWzIsICJlc3RpbWF0ZSJdW1sxXV0sCiAgICAgICAgICAgIHJlc2lkdWFsID0gdmFyKHJlc2lkKGxtKE9XQiB+IEpvYl9zYXRpc2ZhY3Rpb24pKSksCiAgICAgICAgICAgIHZhcl9wcm9kID0gdmFyKE9XQiksCiAgICAgICAgICAgIG1lYW5fcHJvZCA9IG1lYW4oT1dCKSwKICAgICAgICAgICAgbWF4X2VzdCA9IG1heChlc3RpbWF0ZV9fKSwKICAgICAgICAgICAgbWF4X2pzID0gbWF4KEpvYl9zYXRpc2ZhY3Rpb24pLAogICAgICAgICAgICBtZWFuX2pzID0gbWVhbihKb2Jfc2F0aXNmYWN0aW9uKSwKICAgICAgICAgICAgdmFyX2pzID0gdmFyKEpvYl9zYXRpc2ZhY3Rpb24pKSAlPiUgCiAgc3VtbWFyaXNlKGNvciA9IHBzeWNoOjpmaXNoZXJ6MnIobWVhbihjb3IpKSwKICAgICAgICAgICAgc2xvcGUgPSBtZWFuKHNsb3BlKSwKICAgICAgICAgICAgc2RfcmVzaWQgPSBzcXJ0KG1lYW4ocmVzaWR1YWwpKSwKICAgICAgICAgICAgc2RfcHJvZCA9IHNxcnQobWVhbih2YXJfcHJvZCkpLAogICAgICAgICAgICBtZWFuX3Byb2QgPSBtZWFuKG1lYW5fcHJvZCksCiAgICAgICAgICAgIG1heF9qcyA9IG1heChtYXhfanMpLAogICAgICAgICAgICBtYXhfZXN0ID0gbWF4KG1heF9lc3QpLAogICAgICAgICAgICBtZWFuX2pzID0gbWVhbihtZWFuX2pzKSwKICAgICAgICAgICAgc2RfanMgPSBzcXJ0KG1lYW4odmFyX2pzKSkpCikKYGBgCgojIyMgU2NhdHRlciBwbG90CmBgYHtyfQoKbTIgPC0gZ2dwbG90KGRpYXJ5LCBhZXMoSm9iX3NhdGlzZmFjdGlvbiwgT1dCKSkgKwogIGZhY2V0X3dyYXAofiBzaW5nbGVfZikgKwogIGdlb21fcG9pbnQoYWxwaGEgPSAwLjAzLCBjb2xvciA9ICIjNkU5MTgxIikgKwogICMgZ2VvbV9saW5lKGFlcyhjb2xvciA9IGZhY3RvcihpZl9lbHNlKGlkID4gMjUsIGlkIC0gMjQuNSwgYXMubnVtZXJpYyhpZCkpKSksIHN0YXQgPSAic21vb3RoIiwgbWV0aG9kID0gJ2xtJywgYWxwaGEgPSAwLjMpICsKICBnZW9tX3Ntb290aChhZXMoSm9iX3NhdGlzZmFjdGlvbiwgZXN0aW1hdGVfXywgeW1pbiA9IGxvd2VyX18sIHltYXggPSB1cHBlcl9fKSwgc3RhdCA9ICdpZGVudGl0eScsIGNvbG9yID0gJ2JsYWNrJykgKwogIGdlb21fdGV4dChhZXMobWF4X2pzICsgMC4xLCBtYXhfZXN0ICsgMC4zLCBsYWJlbCA9IHNwcmludGYoJ2I9PXBsYWluKCIlLjJmIiknLCBzbG9wZSkpLCBkYXRhID0gY29ycywgaGp1c3QgPSAwLCBwYXJzZSA9IFRSVUUsIHNpemUgPSAzKSArCiAgc2NhbGVfY29sb3JfdmlyaWRpc19kKGd1aWRlID0gRiwgb3B0aW9uID0gIkIiKSArICAgCiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuMSwgY29sb3IgPSAiIzZFOTE4MSIpICsKICAKICBnZW9tX3RleHQoYWVzKGxhYmVsID0gc3ByaW50ZignaXRhbGljKCJyIik9PXBsYWluKCIlLjJmIiknLCBjb3IpKSwgeD0gLTMsIHk9Mi41LCBkYXRhID0gY29ycywgaGp1c3QgPSAwLCBwYXJzZSA9IFRSVUUsIHNpemUgPSAzKSArCiAgZXhwYW5kX2xpbWl0cyh4ID0gYyg0LjUpLCB5ID0gYygtMyw0KSkgKwogIHhsYWIoIkpvYiBzYXRpc2ZhY3Rpb24iKSArCiAgeWxhYigiT3ZlcmFsbCB3ZWxsLWJlaW5nIikgKwogIGdndGhlbWVzOjp0aGVtZV9jbGVhbigpCm0yCmBgYAoKCgpgYGB7cn0KZGlhcnkgPC0gZGlhcnkgJT4lIG11dGF0ZSgKICAgIEpvYl9zYXRpc2ZhY3Rpb25fb2xkID0gSm9iX3NhdGlzZmFjdGlvbiwKKQpgYGAKCiMjIFBhbmVsIEM6IFJlc3RyaWN0ZWQgdmFyaWFuY2UgaW4gcHJlZGljdG9yCmBgYHtyfQpkaWFyeSA8LSBkaWFyeSAlPiUgCiAgbXV0YXRlKAogICAgSm9iX3NhdGlzZmFjdGlvbiA9IEpvYl9zYXRpc2ZhY3Rpb25fb2xkLAogICAgSm9iX3NhdGlzZmFjdGlvbiA9IGlmX2Vsc2Uoc2luZ2xlID09IDAsIEpvYl9zYXRpc2ZhY3Rpb24gKiAwLjcsIEpvYl9zYXRpc2ZhY3Rpb24pLAogICAgT1dCID0gMC42ICogSm9iX3NhdGlzZmFjdGlvbiArIDAuNSphdmVyYWdlX3dlbGxfYmVpbmcgKyAwLjcgKiByZXNpZHVhbAogICkKc2QoZGlhcnkkSm9iX3NhdGlzZmFjdGlvbikKc2QoZGlhcnkkT1dCKQpyb3VuZChjb3IoZGlhcnkgJT4lIHNlbGVjdChzaW5nbGUsIEpvYl9zYXRpc2ZhY3Rpb24sIFJlbGF0aW9uc2hpcF9zYXRpc2ZhY3Rpb24sIE9XQikpLDIpCmBgYAoKCiMjIyBGaXQgTE0KYGBge3J9Cm1vZGVsIDwtIGJybShPV0IgfiBKb2Jfc2F0aXNmYWN0aW9uKnNpbmdsZV9mICsgKDEgKyBKb2Jfc2F0aXNmYWN0aW9uIHwgaWQpLCBkYXRhID0gZGlhcnksIGNvcmVzID0gNCwgYmFja2VuZCA9ICJjbWRzdGFuciIsIGZpbGUgPSAibW9kZWxzL3Jlc3RyaWN0ZWRfcHJlZCIpCgpkaWFyeVssYygiZXN0aW1hdGVfXyIsICJzdGQuZXJyb3JfXyIsICJsb3dlcl9fIiwgInVwcGVyX18iKV0gPC0gZml0dGVkKG1vZGVsLCByZV9mb3JtdWxhID0gTkEpCmBgYAoKCiMjIyBJbnNwZWN0IGNvcnJlbGF0aW9ucwpgYGB7cn0KKGNvcnMgPC0gZGlhcnkgJT4lIGdyb3VwX2J5KHNpbmdsZV9mLCBpZCkgJT4lCiAgc3VtbWFyaXNlKGNvciA9IHBzeWNoOjpmaXNoZXJ6KGNvcihKb2Jfc2F0aXNmYWN0aW9uLCBPV0IpKSwKICAgICAgICAgICAgc2xvcGUgPSBicm9vbTo6dGlkeShsbShPV0IgfiBKb2Jfc2F0aXNmYWN0aW9uKSlbMiwgImVzdGltYXRlIl1bWzFdXSwKICAgICAgICAgICAgcmVzaWR1YWwgPSB2YXIocmVzaWQobG0oT1dCIH4gSm9iX3NhdGlzZmFjdGlvbikpKSwKICAgICAgICAgICAgdmFyX3Byb2QgPSB2YXIoT1dCKSwKICAgICAgICAgICAgbWVhbl9wcm9kID0gbWVhbihPV0IpLAogICAgICAgICAgICBtYXhfZXN0ID0gbWF4KGVzdGltYXRlX18pLAogICAgICAgICAgICBtaW5fZXN0ID0gbWluKGVzdGltYXRlX18pLAogICAgICAgICAgICBtYXhfanMgPSBtYXgoSm9iX3NhdGlzZmFjdGlvbiksCiAgICAgICAgICAgIG1pbl9qcyA9IG1pbihKb2Jfc2F0aXNmYWN0aW9uKSwKICAgICAgICAgICAgbWVhbl9qcyA9IG1lYW4oSm9iX3NhdGlzZmFjdGlvbiksCiAgICAgICAgICAgIHZhcl9qcyA9IHZhcihKb2Jfc2F0aXNmYWN0aW9uKSkgJT4lIAogIHN1bW1hcmlzZShjb3IgPSBwc3ljaDo6ZmlzaGVyejJyKG1lYW4oY29yKSksCiAgICAgICAgICAgIHNsb3BlID0gbWVhbihzbG9wZSksCiAgICAgICAgICAgIHNkX3Jlc2lkID0gc3FydChtZWFuKHJlc2lkdWFsKSksCiAgICAgICAgICAgIHNkX3Byb2QgPSBzcXJ0KG1lYW4odmFyX3Byb2QpKSwKICAgICAgICAgICAgbWVhbl9wcm9kID0gbWVhbihtZWFuX3Byb2QpLAogICAgICAgICAgICBtYXhfanMgPSBtYXgobWF4X2pzKSwKICAgICAgICAgICAgbWluX2pzID0gbWluKG1pbl9qcyksCiAgICAgICAgICAgIG1heF9lc3QgPSBtYXgobWF4X2VzdCksCiAgICAgICAgICAgIG1pbl9lc3QgPSBtaW4obWluX2VzdCksCiAgICAgICAgICAgIG1lYW5fanMgPSBtZWFuKG1lYW5fanMpLAogICAgICAgICAgICBzZF9qcyA9IHNxcnQobWVhbih2YXJfanMpKSkKKQpgYGAKCiMjIyBTY2F0dGVyIHBsb3QKYGBge3J9CgptMyA8LSBnZ3Bsb3QoZGlhcnksIGFlcyhKb2Jfc2F0aXNmYWN0aW9uLCBPV0IpKSArCiAgZmFjZXRfd3JhcCh+IHNpbmdsZV9mKSArCiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuMDMsIGNvbG9yID0gIiM2RTkxODEiKSArCiAgIyBnZW9tX2xpbmUoYWVzKGNvbG9yID0gZmFjdG9yKGlmX2Vsc2UoaWQgPiAyNSwgaWQgLSAyNC41LCBhcy5udW1lcmljKGlkKSkpKSwgc3RhdCA9ICJzbW9vdGgiLCBtZXRob2QgPSAnbG0nLCBhbHBoYSA9IDAuMykgKwogIGdlb21fc21vb3RoKGFlcyhKb2Jfc2F0aXNmYWN0aW9uLCBlc3RpbWF0ZV9fLCB5bWluID0gbG93ZXJfXywgeW1heCA9IHVwcGVyX18pLCBzdGF0ID0gJ2lkZW50aXR5JywgY29sb3IgPSAnYmxhY2snKSArCiAgZ2VvbV90ZXh0KGFlcyhtYXhfanMgKyAwLjEsIG1heF9lc3QgKyAwLjMsIGxhYmVsID0gc3ByaW50ZignYj09cGxhaW4oIiUuMmYiKScsIHNsb3BlKSksIGRhdGEgPSBjb3JzLCBoanVzdCA9IDAsIHBhcnNlID0gVFJVRSwgc2l6ZSA9IDMpICsKICBzY2FsZV9jb2xvcl92aXJpZGlzX2QoZ3VpZGUgPSBGLCBvcHRpb24gPSAiQiIpICsgICAKICBnZW9tX3BvaW50KGFscGhhID0gMC4xLCBjb2xvciA9ICIjNkU5MTgxIikgKwogIAogIGdlb21fdGV4dChhZXMobGFiZWwgPSBzcHJpbnRmKCdpdGFsaWMoInIiKT09cGxhaW4oIiUuMmYiKScsIGNvcikpLCB4PSAtMywgeT0yLjUsIGRhdGEgPSBjb3JzLCBoanVzdCA9IDAsIHBhcnNlID0gVFJVRSwgc2l6ZSA9IDMpICsKICAKICBleHBhbmRfbGltaXRzKHggPSBjKC0zLjcsIDQuNSksIHkgPSBjKC0zLDQpKSArCiAgeGxhYigiSm9iIHNhdGlzZmFjdGlvbiIpICsKICB5bGFiKCJPdmVyYWxsIHdlbGwtYmVpbmciKSArCiAgZ2d0aGVtZXM6OnRoZW1lX2NsZWFuKCkKbTMKYGBgCgoKIyMgQWx0b2dldGhlcgpgYGB7cn0KbGlicmFyeShjb3dwbG90KQpwbG90X2dyaWQobTEsIG0yLCBtMywgbmNvbCA9IDEsIGxhYmVscyA9ICJBVVRPIikKZ2dzYXZlKCJwbG90cy9qb2Jfc2F0aXNmYWN0aW9uX3NpbmdsZXMucGRmIiwgd2lkdGggPSA1LCBoZWlnaHQgPSA3KQpnZ3NhdmUoInBsb3RzL2pvYl9zYXRpc2ZhY3Rpb25fc2luZ2xlcy5wbmciLCB3aWR0aCA9IDYsIGhlaWdodCA9IDcpCmBgYAoK</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("slopes_vs_correlations.Rmd");
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

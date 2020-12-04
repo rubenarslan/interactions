@@ -1,10 +1,8 @@
 ---
-pagetitle: "Precise answers to vague questions: Issues with interactions"
+title: "Precise Answers to Vague Questions: Issues with Interactions"
 ---
 
-# Precise answers to vague questions: Issues with interactions
-
-Here, we have documented the motivating examples with simulated data in our manuscript, together with brms example code. Use the menu to access the different parts.
+Here, we have documented the motivating examples in our manuscript. They include generative models for simulating, together with brms code, and plots. Use the menu to access the different parts.
 
 ### Reproducibility
 This repository uses the [renv](https://rstudio.github.io/renv/) package to make it easier to rerun analyses using the same setup and package versions that were used to create them.

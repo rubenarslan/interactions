@@ -43,4 +43,6 @@ exclude:
 - data
 - "renv"
 - '*.rds'
+- models
+- plots
 

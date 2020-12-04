@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>box_2_same_correlation_different_slope.utf8</title>
+
+<script src="site_libs/header-attrs-2.5/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/paper.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  { color: #cccccc; background-color: #303030; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ffcfaf; } /* Alert */
+code span.an { color: #7f9f7f; font-weight: bold; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bn { color: #dca3a3; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #f0dfaf; } /* ControlFlow */
+code span.ch { color: #dca3a3; } /* Char */
+code span.cn { color: #dca3a3; font-weight: bold; } /* Constant */
+code span.co { color: #7f9f7f; } /* Comment */
+code span.cv { color: #7f9f7f; font-weight: bold; } /* CommentVar */
+code span.do { color: #7f9f7f; } /* Documentation */
+code span.dt { color: #dfdfbf; } /* DataType */
+code span.dv { color: #dcdccc; } /* DecVal */
+code span.er { color: #c3bf9f; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #c0bed1; } /* Float */
+code span.fu { color: #efef8f; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #7f9f7f; font-weight: bold; } /* Information */
+code span.kw { color: #f0dfaf; } /* Keyword */
+code span.op { color: #f0efd0; } /* Operator */
+code span.ot { color: #efef8f; } /* Other */
+code span.pp { color: #ffcfaf; font-weight: bold; } /* Preprocessor */
+code span.sc { color: #dca3a3; } /* SpecialChar */
+code span.ss { color: #cc9393; } /* SpecialString */
+code span.st { color: #cc9393; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #cc9393; } /* VerbatimString */
+code span.wa { color: #7f9f7f; font-weight: bold; } /* Warning */
+
+.sourceCode .row {
+  width: 100%;
+}
+.sourceCode {
+  overflow-x: auto;
+}
+.code-folding-btn {
+  margin-right: -30px;
+}
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 64px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h2 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h3 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h4 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h5 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.section h6 {
+  padding-top: 69px;
+  margin-top: -69px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Issues with Interactions</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="scale_dependence.html">Scale dependence</a>
+</li>
+<li>
+  <a href="slopes_vs_correlations.html">Slopes vs. correlations</a>
+</li>
+<li>
+  <a href="causal_identification.html">Causal identification</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Boxes
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="box_1_ceiling_effect.html">Box 1: Ceiling and floor effects</a>
+    </li>
+    <li>
+      <a href="box_2_same_correlation_different_slope.html">Box 2: Same correlation does not imply same slope</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/rubenarslan/interactions">
+    <span class="fa fa-github"></span>
+     
+    
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<div id="differences-in-slopes-or-residual-variance" class="section level1">
+<h1>Differences in slopes or residual variance</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span></code></pre></div>
+<div id="data-generating-model" class="section level3">
+<h3>Data-generating model</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">201910052</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>people <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">days_WFH =</span> <span class="fu">rep</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">length.out =</span> n),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">parent =</span> id <span class="sc">&gt;</span> n<span class="sc">/</span><span class="dv">2</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">sleep =</span> <span class="fu">rnorm</span>(n, <span class="fu">if_else</span>(parent, <span class="dv">6</span>, <span class="dv">8</span>), <span class="fu">if_else</span>(parent, <span class="dv">5</span>, <span class="dv">1</span>)),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">RandomVariation =</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">round</span>(people<span class="sc">$</span>sleep))</span></code></pre></div>
+<pre><code>## 
+##  -7  -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6   7   8   9  10  11  12 
+##   1   3   2   4   6  11  17  17  18  36  28  38  39  89 159 231 153  53  29  17 
+##  13  14  15  16  17  18  21 
+##  19  11   6   3   2   6   2</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xtabs</span>(<span class="sc">~</span> parent <span class="sc">+</span> days_WFH, people)</span></code></pre></div>
+<pre><code>##        days_WFH
+## parent   0  1  2  3  4  5
+##   FALSE 84 84 83 83 83 83
+##   TRUE  83 83 84 84 83 83</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(people<span class="sc">$</span>days_WFH)</span></code></pre></div>
+<pre><code>## 
+##   0   1   2   3   4   5 
+## 167 167 167 167 166 166</code></pre>
+</div>
+<div id="variance-in-outcome-increases-with-moderator-predictor-variance-is-lower" class="section level2">
+<h2>Variance in outcome increases with moderator, predictor variance is lower</h2>
+<div id="dgm" class="section level3">
+<h3>DGM</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>people <span class="ot">&lt;-</span> people <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Productivity =</span> <span class="dv">20</span> <span class="sc">+</span> sleep <span class="sc">+</span> <span class="fu">if_else</span>(parent, <span class="fl">0.31</span>, <span class="fl">0.1</span>) <span class="sc">*</span> days_WFH <span class="sc">+</span> <span class="fl">1.75</span> <span class="sc">*</span> RandomVariation</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> people) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(sleep, <span class="at">fill =</span> parent), <span class="at">position =</span> <span class="fu">position_identity</span>(), <span class="at">alpha =</span> <span class="fl">0.4</span>)</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_2_same_correlation_different_slope_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> people) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(Productivity, <span class="at">fill =</span> parent), <span class="at">position =</span> <span class="fu">position_identity</span>(), <span class="at">alpha =</span> <span class="fl">0.4</span>)</span></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="box_2_same_correlation_different_slope_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+</div>
+<div id="fit-lm" class="section level3">
+<h3>Fit LM</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">brm</span>(Productivity <span class="sc">~</span> parent <span class="sc">*</span> days_WFH, <span class="at">data =</span> people, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/productivity_parents_mean&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">brm</span>(<span class="fu">bf</span>(Productivity <span class="sc">~</span> parent <span class="sc">*</span> days_WFH, </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                 sigma <span class="sc">~</span> parent), <span class="at">data =</span> people, <span class="at">cores =</span> <span class="dv">4</span>, <span class="at">backend =</span> <span class="st">&quot;cmdstanr&quot;</span>, <span class="at">file =</span> <span class="st">&quot;models/productivity_parents_mean_sigma&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>people[,<span class="fu">c</span>(<span class="st">&quot;estimate__&quot;</span>, <span class="st">&quot;std.error__&quot;</span>, <span class="st">&quot;lower__&quot;</span>, <span class="st">&quot;upper__&quot;</span>)] <span class="ot">&lt;-</span> <span class="fu">fitted</span>(model, <span class="at">re_formula =</span> <span class="cn">NA</span>)</span></code></pre></div>
+</div>
+<div id="inspect-correlations" class="section level3">
+<h3>Inspect correlations</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>(cors <span class="ot">&lt;-</span> people <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(parent) <span class="sc">%&gt;%</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">cor =</span> <span class="fu">cor</span>(days_WFH, Productivity),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">slope =</span> broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">lm</span>(Productivity <span class="sc">~</span> days_WFH))[<span class="dv">2</span>, <span class="st">&quot;estimate&quot;</span>][[<span class="dv">1</span>]],</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_resid =</span> <span class="fu">sd</span>(<span class="fu">resid</span>(<span class="fu">lm</span>(Productivity <span class="sc">~</span> days_WFH))),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_prod =</span> <span class="fu">sd</span>(Productivity),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_prod =</span> <span class="fu">mean</span>(Productivity),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">max_js =</span> <span class="fu">max</span>(days_WFH),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_js =</span> <span class="fu">mean</span>(days_WFH),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_est =</span> <span class="fu">mean</span>(estimate__),</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd_js =</span> <span class="fu">sd</span>(days_WFH))</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<pre><code>## `summarise()` ungrouping output (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 2 x 10
+##   parent   cor slope sd_resid sd_prod mean_prod max_js mean_js mean_est sd_js
+##   &lt;lgl&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+## 1 FALSE  0.131 0.157     2.03    2.05      28.2      5    2.49     28.2  1.71
+## 2 TRUE   0.132 0.398     5.10    5.15      27.0      5    2.5      27.0  1.71</code></pre>
+</div>
+<div id="scatter-plot" class="section level3">
+<h3>Scatter plot</h3>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>m6 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(people, <span class="fu">aes</span>(days_WFH, Productivity)) <span class="sc">+</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> parent, <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">parent =</span> <span class="fu">c</span>(<span class="st">&quot;TRUE&quot;</span> <span class="ot">=</span> <span class="st">&quot;parent&quot;</span>, <span class="st">&quot;FALSE&quot;</span> <span class="ot">=</span> <span class="st">&quot;non-parent&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">color =</span> <span class="st">&quot;#6E9181&quot;</span>) <span class="sc">+</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># geom_line(aes(color = factor(if_else(id &gt; 25, id - 24.5, as.numeric(id)))), stat = &quot;smooth&quot;, method = &#39;lm&#39;, alpha = 0.3) +</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(days_WFH, Productivity), <span class="at">method =</span> <span class="st">&#39;lm&#39;</span>, <span class="at">color =</span> <span class="st">&#39;black&#39;</span>) <span class="sc">+</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(max_js <span class="sc">-</span> <span class="dv">3</span>, mean_est <span class="sc">+</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;b==plain(&quot;%.2f&quot;)&#39;</span>, slope)), <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">guide =</span> F, <span class="at">option =</span> <span class="st">&quot;B&quot;</span>)<span class="sc">+</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;italic(&quot;r&quot;)==plain(&quot;%.2f&quot;)&#39;</span>, cor)), <span class="at">x=</span> <span class="fl">0.5</span>, <span class="at">y=</span><span class="dv">39</span>, <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(max_js <span class="sc">+</span> <span class="fl">0.3</span>, <span class="at">y =</span> mean_prod <span class="sc">-</span> <span class="dv">2</span>, <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;sigma[y]==plain(&quot;%.2f&quot;)&#39;</span>, sd_prod)),, <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>) <span class="sc">+</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> max_js <span class="sc">+</span> <span class="fl">0.55</span>, <span class="at">y =</span> mean_prod <span class="sc">-</span> sd_prod<span class="sc">/</span><span class="dv">2</span>, <span class="at">xend =</span> max_js <span class="sc">+</span> <span class="fl">0.55</span>, <span class="at">yend =</span> mean_prod <span class="sc">+</span> sd_prod<span class="sc">/</span><span class="dv">2</span>), <span class="at">data =</span> cors, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">&quot;#219FD8&quot;</span>) <span class="sc">+</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(max_js <span class="sc">+</span> <span class="fl">0.9</span>, <span class="at">y =</span> mean_prod <span class="sc">-</span> <span class="dv">2</span>, <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;sigma[res(y)]==plain(&quot;%.2f&quot;)&#39;</span>, sd_resid)),, <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">angle =</span> <span class="dv">90</span>) <span class="sc">+</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> max_js <span class="sc">+</span> <span class="fl">1.15</span>, <span class="at">y =</span> mean_prod <span class="sc">-</span> sd_resid<span class="sc">/</span><span class="dv">2</span>, <span class="at">xend =</span> max_js <span class="sc">+</span> <span class="fl">1.15</span>, <span class="at">yend =</span> mean_prod <span class="sc">+</span> sd_resid<span class="sc">/</span><span class="dv">2</span>), <span class="at">data =</span> cors, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">&quot;#219FD8&quot;</span>) <span class="sc">+</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">&#39;sigma[x]==plain(&quot;%.1f&quot;)&#39;</span>, sd_js),  <span class="at">x=</span> mean_js <span class="sc">-</span> .<span class="dv">7</span>, <span class="at">y =</span> <span class="dv">16</span>), <span class="at">data =</span> cors, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">parse =</span> <span class="cn">TRUE</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> mean_js <span class="sc">-</span> sd_js<span class="sc">/</span><span class="dv">2</span>, <span class="at">y =</span> <span class="dv">15</span>, <span class="at">xend =</span> mean_js <span class="sc">+</span> sd_js<span class="sc">/</span><span class="dv">2</span>, <span class="at">yend =</span> <span class="dv">15</span>), <span class="at">data =</span> cors, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">&quot;#219FD8&quot;</span>) <span class="sc">+</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># coord_cartesian(ylim = c(-3.5, 3.5)) +</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="st">&quot;Days worked from home&quot;</span>, <span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Productivity (h)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  ggthemes<span class="sc">::</span><span class="fu">theme_clean</span>()</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>m6</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="box_2_same_correlation_different_slope_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;plots/parents_slope_vs_corr.pdf&quot;</span>, <span class="at">width =</span> <span class="fl">5.5</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">&quot;plots/parents_slope_vs_corr.png&quot;</span>, <span class="at">width =</span> <span class="fl">4.5</span>, <span class="at">height =</span> <span class="dv">3</span>)</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+</div>
+</div>
+</div>
+
+<div id="rmd-source-code">IyBEaWZmZXJlbmNlcyBpbiBzbG9wZXMgb3IgcmVzaWR1YWwgdmFyaWFuY2UKCmBgYHtyfQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShicm1zKQpgYGAKCiMjIyBEYXRhLWdlbmVyYXRpbmcgbW9kZWwKYGBge3J9CnNldC5zZWVkKDIwMTkxMDA1MikKbiA8LSAxMDAwCnBlb3BsZSA8LSB0aWJibGUoCiAgaWQgPSAxOm4sCiAgZGF5c19XRkggPSByZXAoMDo1LCBsZW5ndGgub3V0ID0gbiksCiAgcGFyZW50ID0gaWQgPiBuLzIsCiAgc2xlZXAgPSBybm9ybShuLCBpZl9lbHNlKHBhcmVudCwgNiwgOCksIGlmX2Vsc2UocGFyZW50LCA1LCAxKSksCiAgUmFuZG9tVmFyaWF0aW9uID0gcm5vcm0obikKKQoKdGFibGUocm91bmQocGVvcGxlJHNsZWVwKSkKeHRhYnMofiBwYXJlbnQgKyBkYXlzX1dGSCwgcGVvcGxlKQp0YWJsZShwZW9wbGUkZGF5c19XRkgpCmBgYAoKCiMjIFZhcmlhbmNlIGluIG91dGNvbWUgaW5jcmVhc2VzIHdpdGggbW9kZXJhdG9yLCBwcmVkaWN0b3IgdmFyaWFuY2UgaXMgbG93ZXIKIyMjIERHTQpgYGB7cn0KcGVvcGxlIDwtIHBlb3BsZSAlPiUgbXV0YXRlKAogIFByb2R1Y3Rpdml0eSA9IDIwICsgc2xlZXAgKyBpZl9lbHNlKHBhcmVudCwgMC4zMSwgMC4xKSAqIGRheXNfV0ZIICsgMS43NSAqIFJhbmRvbVZhcmlhdGlvbgopCmdncGxvdChkYXRhID0gcGVvcGxlKSArIGdlb21faGlzdG9ncmFtKGFlcyhzbGVlcCwgZmlsbCA9IHBhcmVudCksIHBvc2l0aW9uID0gcG9zaXRpb25faWRlbnRpdHkoKSwgYWxwaGEgPSAwLjQpCmdncGxvdChkYXRhID0gcGVvcGxlKSArIGdlb21faGlzdG9ncmFtKGFlcyhQcm9kdWN0aXZpdHksIGZpbGwgPSBwYXJlbnQpLCBwb3NpdGlvbiA9IHBvc2l0aW9uX2lkZW50aXR5KCksIGFscGhhID0gMC40KQpgYGAKCiMjIyBGaXQgTE0KYGBge3J9Cm1vZGVsIDwtIGJybShQcm9kdWN0aXZpdHkgfiBwYXJlbnQgKiBkYXlzX1dGSCwgZGF0YSA9IHBlb3BsZSwgY29yZXMgPSA0LCBiYWNrZW5kID0gImNtZHN0YW5yIiwgZmlsZSA9ICJtb2RlbHMvcHJvZHVjdGl2aXR5X3BhcmVudHNfbWVhbiIpCm1vZGVsMiA8LSBicm0oYmYoUHJvZHVjdGl2aXR5IH4gcGFyZW50ICogZGF5c19XRkgsIAogICAgICAgICAgICAgICAgIHNpZ21hIH4gcGFyZW50KSwgZGF0YSA9IHBlb3BsZSwgY29yZXMgPSA0LCBiYWNrZW5kID0gImNtZHN0YW5yIiwgZmlsZSA9ICJtb2RlbHMvcHJvZHVjdGl2aXR5X3BhcmVudHNfbWVhbl9zaWdtYSIpCnBlb3BsZVssYygiZXN0aW1hdGVfXyIsICJzdGQuZXJyb3JfXyIsICJsb3dlcl9fIiwgInVwcGVyX18iKV0gPC0gZml0dGVkKG1vZGVsLCByZV9mb3JtdWxhID0gTkEpCmBgYAoKIyMjIEluc3BlY3QgY29ycmVsYXRpb25zCmBgYHtyfQooY29ycyA8LSBwZW9wbGUgJT4lIGdyb3VwX2J5KHBhcmVudCkgJT4lCiAgc3VtbWFyaXNlKGNvciA9IGNvcihkYXlzX1dGSCwgUHJvZHVjdGl2aXR5KSwKICAgICAgICAgICAgc2xvcGUgPSBicm9vbTo6dGlkeShsbShQcm9kdWN0aXZpdHkgfiBkYXlzX1dGSCkpWzIsICJlc3RpbWF0ZSJdW1sxXV0sCiAgICAgICAgICAgIHNkX3Jlc2lkID0gc2QocmVzaWQobG0oUHJvZHVjdGl2aXR5IH4gZGF5c19XRkgpKSksCiAgICAgICAgICAgIHNkX3Byb2QgPSBzZChQcm9kdWN0aXZpdHkpLAogICAgICAgICAgICBtZWFuX3Byb2QgPSBtZWFuKFByb2R1Y3Rpdml0eSksCiAgICAgICAgICAgIG1heF9qcyA9IG1heChkYXlzX1dGSCksCiAgICAgICAgICAgIG1lYW5fanMgPSBtZWFuKGRheXNfV0ZIKSwKICAgICAgICAgICAgbWVhbl9lc3QgPSBtZWFuKGVzdGltYXRlX18pLAogICAgICAgICAgICBzZF9qcyA9IHNkKGRheXNfV0ZIKSkKKQpgYGAKCiMjIyBTY2F0dGVyIHBsb3QKYGBge3J9Cm02IDwtIGdncGxvdChwZW9wbGUsIGFlcyhkYXlzX1dGSCwgUHJvZHVjdGl2aXR5KSkgKwogIGZhY2V0X3dyYXAofiBwYXJlbnQsIGxhYmVsbGVyID0gbGFiZWxsZXIocGFyZW50ID0gYygiVFJVRSIgPSAicGFyZW50IiwgIkZBTFNFIiA9ICJub24tcGFyZW50IikpKSArCiAgZ2VvbV9wb2ludChhbHBoYSA9IDAuMSwgY29sb3IgPSAiIzZFOTE4MSIpICsKICAjIGdlb21fbGluZShhZXMoY29sb3IgPSBmYWN0b3IoaWZfZWxzZShpZCA+IDI1LCBpZCAtIDI0LjUsIGFzLm51bWVyaWMoaWQpKSkpLCBzdGF0ID0gInNtb290aCIsIG1ldGhvZCA9ICdsbScsIGFscGhhID0gMC4zKSArCiAgZ2VvbV9zbW9vdGgoYWVzKGRheXNfV0ZILCBQcm9kdWN0aXZpdHkpLCBtZXRob2QgPSAnbG0nLCBjb2xvciA9ICdibGFjaycpICsKICBnZW9tX3RleHQoYWVzKG1heF9qcyAtIDMsIG1lYW5fZXN0ICsgMS4xLCBsYWJlbCA9IHNwcmludGYoJ2I9PXBsYWluKCIlLjJmIiknLCBzbG9wZSkpLCBkYXRhID0gY29ycywgaGp1c3QgPSAwLCBwYXJzZSA9IFRSVUUsIHNpemUgPSAzKSArCgogIHNjYWxlX2NvbG9yX3ZpcmlkaXNfZChndWlkZSA9IEYsIG9wdGlvbiA9ICJCIikrCiAgZ2VvbV90ZXh0KGFlcyhsYWJlbCA9IHNwcmludGYoJ2l0YWxpYygiciIpPT1wbGFpbigiJS4yZiIpJywgY29yKSksIHg9IDAuNSwgeT0zOSwgZGF0YSA9IGNvcnMsIGhqdXN0ID0gMCwgcGFyc2UgPSBUUlVFLCBzaXplID0gMykgKwoKICBnZW9tX3RleHQoYWVzKG1heF9qcyArIDAuMywgeSA9IG1lYW5fcHJvZCAtIDIsIGxhYmVsID0gc3ByaW50Zignc2lnbWFbeV09PXBsYWluKCIlLjJmIiknLCBzZF9wcm9kKSksLCBkYXRhID0gY29ycywgaGp1c3QgPSAwLCBwYXJzZSA9IFRSVUUsIHNpemUgPSAzLCBhbmdsZSA9IDkwKSArCiAgZ2VvbV9zZWdtZW50KGFlcyh4ID0gbWF4X2pzICsgMC41NSwgeSA9IG1lYW5fcHJvZCAtIHNkX3Byb2QvMiwgeGVuZCA9IG1heF9qcyArIDAuNTUsIHllbmQgPSBtZWFuX3Byb2QgKyBzZF9wcm9kLzIpLCBkYXRhID0gY29ycywgc2l6ZSA9IDEsIGNvbG9yID0gIiMyMTlGRDgiKSArCgogIGdlb21fdGV4dChhZXMobWF4X2pzICsgMC45LCB5ID0gbWVhbl9wcm9kIC0gMiwgbGFiZWwgPSBzcHJpbnRmKCdzaWdtYVtyZXMoeSldPT1wbGFpbigiJS4yZiIpJywgc2RfcmVzaWQpKSwsIGRhdGEgPSBjb3JzLCBoanVzdCA9IDAsIHBhcnNlID0gVFJVRSwgc2l6ZSA9IDMsIGFuZ2xlID0gOTApICsKICBnZW9tX3NlZ21lbnQoYWVzKHggPSBtYXhfanMgKyAxLjE1LCB5ID0gbWVhbl9wcm9kIC0gc2RfcmVzaWQvMiwgeGVuZCA9IG1heF9qcyArIDEuMTUsIHllbmQgPSBtZWFuX3Byb2QgKyBzZF9yZXNpZC8yKSwgZGF0YSA9IGNvcnMsIHNpemUgPSAxLCBjb2xvciA9ICIjMjE5RkQ4IikgKwoKICBnZW9tX3RleHQoYWVzKGxhYmVsID0gc3ByaW50Zignc2lnbWFbeF09PXBsYWluKCIlLjFmIiknLCBzZF9qcyksICB4PSBtZWFuX2pzIC0gLjcsIHkgPSAxNiksIGRhdGEgPSBjb3JzLCBoanVzdCA9IDAsIHBhcnNlID0gVFJVRSwgc2l6ZSA9IDMpICsKICBnZW9tX3NlZ21lbnQoYWVzKHggPSBtZWFuX2pzIC0gc2RfanMvMiwgeSA9IDE1LCB4ZW5kID0gbWVhbl9qcyArIHNkX2pzLzIsIHllbmQgPSAxNSksIGRhdGEgPSBjb3JzLCBzaXplID0gMSwgY29sb3IgPSAiIzIxOUZEOCIpICsKICAKCiAgIyBjb29yZF9jYXJ0ZXNpYW4oeWxpbSA9IGMoLTMuNSwgMy41KSkgKwogIHNjYWxlX3hfY29udGludW91cygiRGF5cyB3b3JrZWQgZnJvbSBob21lIiwgYnJlYWtzID0gMDo1KSArCiAgeWxhYigiUHJvZHVjdGl2aXR5IChoKSIpICsKICBnZ3RoZW1lczo6dGhlbWVfY2xlYW4oKQptNgoKZ2dzYXZlKCJwbG90cy9wYXJlbnRzX3Nsb3BlX3ZzX2NvcnIucGRmIiwgd2lkdGggPSA1LjUsIGhlaWdodCA9IDQpCmdnc2F2ZSgicGxvdHMvcGFyZW50c19zbG9wZV92c19jb3JyLnBuZyIsIHdpZHRoID0gNC41LCBoZWlnaHQgPSAzKQpgYGAKCgo=</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("box_2_same_correlation_different_slope.Rmd");
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
