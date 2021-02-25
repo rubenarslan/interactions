@@ -238,4 +238,5 @@ ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 ggsave("plots/log_function.png", width = 4, height = 3)
+ggsave("plots/log_function.pdf", width = 4, height = 3)
 ```
